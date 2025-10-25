@@ -47,7 +47,10 @@ const handler: RouteHandler<typeof route> = async (c) => {
 
   const payload = parseMediaPayload(bindings, payloadString);
 
-  const url = resolveUrl(session.mainUrl, payload.path);
+  const url = resolveUrl({
+    baseUrl: session.mainUrl,
+    path: payload.path,
+  });
   const playlist = await getMediaPlaylist(url);
 
   ensureProgramDateTime(session, playlist);

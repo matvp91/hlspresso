@@ -6,9 +6,15 @@ import { resolveUrl } from "../utils/url";
 
 export function rewriteUrls(playlist: MediaPlaylist, playlistUrl: string) {
   for (const segment of playlist.segments) {
-    segment.uri = resolveUrl(playlistUrl, segment.uri);
+    segment.uri = resolveUrl({
+      baseUrl: playlistUrl,
+      path: segment.uri,
+    });
     if (segment.map) {
-      segment.map.uri = resolveUrl(playlistUrl, segment.map.uri);
+      segment.map.uri = resolveUrl({
+        baseUrl: playlistUrl,
+        path: segment.map.uri,
+      });
     }
   }
 }
