@@ -2,7 +2,7 @@ import type { MainPlaylist } from "../parser/types";
 import type { Bindings } from "../utils/bindings";
 import { formatMediaPayload } from "./payload";
 
-export function rewriteUrls(bindings: Bindings, playlist: MainPlaylist) {
+export function rewriteMainUrls(bindings: Bindings, playlist: MainPlaylist) {
   let index = 0;
   for (const variant of playlist.variants) {
     index++;

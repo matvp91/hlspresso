@@ -1,0 +1,35 @@
+import { createRoute, z } from "@hono/zod-openapi";
+
+export const assetList = createRoute({
+  hide: true,
+  method: "get",
+  path: "/out/:payload/asset-list.json",
+  request: {
+    params: z.object({
+      payload: z.string(),
+    }),
+    query: z.object({
+      _HLS_primary_id: z.string().optional(),
+      _HLS_start_offset: z.coerce.number().optional(),
+    }),
+  },
+  responses: {
+    200: {
+      description: "The asset list",
+      content: {
+        "application/json": {
+          schema: z.object({
+            ASSETS: z.array(
+              z.object({
+                URI: z.string(),
+                DURATION: z.number(),
+              }),
+            ),
+          }),
+        },
+      },
+    },
+  },
+});
+
+export type AssetListRoute = typeof assetList;

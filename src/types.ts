@@ -1,4 +1,4 @@
-import type { z } from "@hono/zod-openapi";
+import type { RouteConfig, RouteHandler, z } from "@hono/zod-openapi";
 import type { DateTime } from "luxon";
 import type { createSessionParamsSchema } from "./schema";
 
@@ -26,3 +26,5 @@ export type ValueOf<T> = T[keyof T];
 
 // biome-ignore lint/suspicious/noExplicitAny: Intended
 export type IntendedAny = any;
+
+export type AppRouteHandler<R extends RouteConfig> = RouteHandler<R>;

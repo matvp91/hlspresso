@@ -4,7 +4,7 @@ import type { MediaPlaylist } from "../parser/types";
 import type { Session } from "../types";
 import { resolveUrl } from "../utils/url";
 
-export function rewriteUrls(playlist: MediaPlaylist, playlistUrl: string) {
+export function rewriteMediaUrls(playlist: MediaPlaylist, playlistUrl: string) {
   for (const segment of playlist.segments) {
     segment.uri = resolveUrl({
       baseUrl: playlistUrl,

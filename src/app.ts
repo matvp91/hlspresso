@@ -1,18 +1,17 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { cors } from "hono/cors";
-import outAssetList from "./routes/[get]out-asset-list";
-import outMain from "./routes/[get]out-main";
-import outMedia from "./routes/[get]out-media";
-import postSessions from "./routes/[post]sessions";
+import out from "./routes/out/out.index";
+import outSession from "./routes/out/session/out.session.index";
+import sessions from "./routes/sessions/sessions.index";
 
 export const app = new OpenAPIHono();
 
 app.use(cors());
 
-app.openapi(postSessions.route, postSessions.handler);
-app.openapi(outAssetList.route, outAssetList.handler);
-app.openapi(outMain.route, outMain.handler);
-app.openapi(outMedia.route, outMedia.handler);
+const routes = [sessions, out, outSession];
+for (const route of routes) {
+  app.route("/", route);
+}
 
 app.get("/openapi", (c) => {
   const doc = app.getOpenAPIDocument({
