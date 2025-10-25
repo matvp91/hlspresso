@@ -2,19 +2,31 @@ import { z } from "@hono/zod-openapi";
 
 export const createSessionParamsSchema = z.object({
   url: z.string(),
-  interstitials: z
+  assets: z
     .array(
-      z.object({
-        time: z.number(),
-        duration: z.number().optional(),
-        assets: z
-          .array(
-            z.object({
-              url: z.string(),
-            }),
-          )
-          .optional(),
-      }),
+      z.discriminatedUnion("type", [
+        z.object({
+          type: z.literal("URL"),
+          time: z.number(),
+          url: z.string(),
+          duration: z.number().optional(),
+        }),
+        z.object({
+          type: z.literal("VAST"),
+          time: z.number(),
+          url: z.string(),
+        }),
+        z.object({
+          type: z.literal("VASTDATA"),
+          time: z.number(),
+          data: z.string(),
+        }),
+      ]),
     )
+    .optional(),
+  vmap: z
+    .object({
+      url: z.string(),
+    })
     .optional(),
 });

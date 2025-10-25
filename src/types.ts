@@ -4,23 +4,21 @@ import type { createSessionParamsSchema } from "./schema";
 
 export type CreateSessionParams = z.infer<typeof createSessionParamsSchema>;
 
-export interface Session {
+export type Asset = {
+  dateTime: DateTime;
+} & (
+  | { type: "URL"; url: string; duration: number }
+  | { type: "VAST"; url: string }
+  | { type: "VASTDATA"; data: string }
+);
+
+export type Session = {
   id: string;
   startTime: DateTime;
-  mainUrl: string;
-  events: TimedEvent[];
-}
-
-export interface Asset {
   url: string;
-  duration: number;
-}
-
-export interface TimedEvent {
-  dateTime: DateTime;
-  duration?: number;
-  assets?: Asset[];
-}
+  assets: Asset[];
+  vmap?: string;
+};
 
 export type ValueOf<T> = T[keyof T];
 

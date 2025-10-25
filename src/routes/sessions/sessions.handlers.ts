@@ -1,7 +1,7 @@
 import { createSession } from "../../lib/session";
 import type { AppRouteHandler } from "../../types";
 import { getBindings } from "../../utils/bindings";
-import type { CreateRoute } from "./session.routes";
+import type { CreateRoute } from "./sessions.routes";
 
 export const create: AppRouteHandler<CreateRoute> = async (c) => {
   const bindings = await getBindings(c);

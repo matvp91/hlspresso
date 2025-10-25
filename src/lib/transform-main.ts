@@ -1,4 +1,4 @@
-import type { MainPlaylist } from "../parser/types";
+import type { MainPlaylist } from "../parser/hls";
 import type { Bindings } from "../utils/bindings";
 import { formatMediaPayload } from "./payload";
 

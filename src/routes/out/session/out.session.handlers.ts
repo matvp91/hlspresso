@@ -16,11 +16,9 @@ export const main: AppRouteHandler<MainRoute> = async (c) => {
   const { sessionId } = c.req.valid("param");
   const session = await getSession(bindings, sessionId);
 
-  const url = session.mainUrl;
   const text = await processMainPlaylist({
     bindings,
     session,
-    url,
   });
 
   return c.text(text, 200, {
@@ -42,7 +40,7 @@ export const media: AppRouteHandler<MediaRoute> = async (c) => {
   const payload = parseMediaPayload(bindings, payloadString);
 
   const url = resolveUrl({
-    baseUrl: session.mainUrl,
+    baseUrl: session.url,
     path: payload.path,
   });
 

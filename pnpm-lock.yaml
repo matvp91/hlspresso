@@ -14,6 +14,12 @@ importers:
       '@hono/zod-openapi':
         specifier: ^1.1.4
         version: 1.1.4(hono@4.10.2)(zod@4.1.12)
+      '@xmldom/xmldom':
+        specifier: ^0.8.11
+        version: 0.8.11
+      hh-mm-ss:
+        specifier: ^1.2.0
+        version: 1.2.0
       hono:
         specifier: ^4.10.2
         version: 4.10.2
@@ -48,6 +54,9 @@ importers:
       '@cloudflare/workers-types':
         specifier: ^4.20251014.0
         version: 4.20251014.0
+      '@types/hh-mm-ss':
+        specifier: ^1.2.3
+        version: 1.2.3
       '@types/luxon':
         specifier: ^3.7.1
         version: 3.7.1
@@ -330,6 +339,9 @@ packages:
     peerDependencies:
       '@redis/client': ^5.9.0
 
+  '@types/hh-mm-ss@1.2.3':
+    resolution: {integrity: sha512-pq7ntXovS/jF6ayHs/CH8b27Fd52skZPf/TE+gl/oWEP6884xSmnAAySUrzaox5ebigqhzPdtcvUAu0AzG54ZA==}
+
   '@types/luxon@3.7.1':
     resolution: {integrity: sha512-H3iskjFIAn5SlJU7OuxUmTEpebK6TKB8rxZShDslBMZJ5u9S//KM1sbdAisiSrqwLQncVjnpi2OK2J51h+4lsg==}
 
@@ -338,6 +350,10 @@ packages:
 
   '@types/rison@0.1.0':
     resolution: {integrity: sha512-Xj7FO2KBR555nDy58tzrSPpNrShppZpPMZi5WjcNglyFEKQZwRnJLrU2U4wHs61Fl/A8gr+siO/Py04hTWLjzg==}
+
+  '@xmldom/xmldom@0.8.11':
+    resolution: {integrity: sha512-cQzWCtO6C8TQiYl1ruKNn2U6Ao4o4WBBcbL61yJl84x+j5sOWWFU9X7DpND8XZG3daDppSsigMdfAIl2upQBRw==}
+    engines: {node: '>=10.0.0'}
 
   cluster-key-slot@1.1.2:
     resolution: {integrity: sha512-RMr0FhtfXemyinomL4hrWcYJxmX6deFdCxpJzhDttxgO1+bcCnkk+9drydLVDmAMG7NE6aN/fl4F7ucU/90gAA==}
@@ -351,6 +367,9 @@ packages:
     resolution: {integrity: sha512-KohQwyzrKTQmhXDW1PjCv3Tyspn9n5GcY2RTDqeORIdIJY8yKIF7sTSopFmn/wpMPW4rdPXI0UE5LJLuq3bx0Q==}
     engines: {node: '>=18'}
     hasBin: true
+
+  hh-mm-ss@1.2.0:
+    resolution: {integrity: sha512-f4I9Hz1dLpX/3mrEs7yq30+FiuO3tt5NWAqAGeBTaoeoBfB8vhcQ3BphuDc5DjZb/K809agqrAaFlP0jhEU/8w==}
 
   hono@4.10.2:
     resolution: {integrity: sha512-p6fyzl+mQo6uhESLxbF5WlBOAJMDh36PljwlKtP5V1v09NxlqGru3ShK+4wKhSuhuYf8qxMmrivHOa/M7q0sMg==}
@@ -401,6 +420,9 @@ packages:
     resolution: {integrity: sha512-lcYcMxX2PO9XMGvAJkJ3OsNMw+/7FKes7/hgerGUYWIoWu5j/+YQqcZr5JnPZWzOsEBgMbSbiSTn/dv/69Mkpw==}
     engines: {node: '>= 14.6'}
     hasBin: true
+
+  zero-fill@2.2.4:
+    resolution: {integrity: sha512-/N5GEDauLHz2uGnuJXWO1Wfib4EC+q4yp9C1jojM7RubwEKADqIqMcYpETMm1lRop403fi3v1qTOdgDE8DIOdw==}
 
   zod@4.1.12:
     resolution: {integrity: sha512-JInaHOamG8pt5+Ey8kGmdcAcg3OL9reK8ltczgHTAwNhMys/6ThXHityHxVV2p3fkw/c+MAvBHFVYHFZDmjMCQ==}
@@ -564,6 +586,8 @@ snapshots:
     dependencies:
       '@redis/client': 5.9.0
 
+  '@types/hh-mm-ss@1.2.3': {}
+
   '@types/luxon@3.7.1': {}
 
   '@types/node@24.9.1':
@@ -571,6 +595,8 @@ snapshots:
       undici-types: 7.16.0
 
   '@types/rison@0.1.0': {}
+
+  '@xmldom/xmldom@0.8.11': {}
 
   cluster-key-slot@1.1.2: {}
 
@@ -607,6 +633,10 @@ snapshots:
       '@esbuild/win32-ia32': 0.25.11
       '@esbuild/win32-x64': 0.25.11
 
+  hh-mm-ss@1.2.0:
+    dependencies:
+      zero-fill: 2.2.4
+
   hono@4.10.2: {}
 
   is-what@5.5.0: {}
@@ -642,5 +672,7 @@ snapshots:
   undici-types@7.16.0: {}
 
   yaml@2.8.1: {}
+
+  zero-fill@2.2.4: {}
 
   zod@4.1.12: {}

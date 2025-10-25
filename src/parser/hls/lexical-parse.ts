@@ -1,5 +1,5 @@
 import { DateTime } from "luxon";
-import { assert } from "../assert";
+import { assert } from "../../assert";
 import { hexToByteSequence, mapAttributes, partOf } from "./helpers";
 
 // Based on the latest spec:

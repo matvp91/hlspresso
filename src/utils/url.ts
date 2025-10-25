@@ -20,3 +20,25 @@ export function resolveUrl(params: ResolveUrlParams) {
 
   return url.toString();
 }
+
+export function replaceUrlParams(
+  inputUrl: string,
+  params?: Record<string, string | number | undefined>,
+) {
+  let url = inputUrl;
+  const allParams = {
+    ...params,
+    // Default params defined below.
+    random: Math.floor(Math.random() * 10_000),
+  };
+
+  const entries = Object.entries(allParams);
+  for (const [key, value] of entries) {
+    if (value === undefined) {
+      continue;
+    }
+    url = url.replaceAll(`{${key}}`, value.toString());
+  }
+
+  return url;
+}

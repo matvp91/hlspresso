@@ -1,8 +1,9 @@
-import rison from "rison";
+import type { DateTime } from "luxon";
 import { assert } from "../assert";
-import type { MediaPlaylist } from "../parser/types";
+import type { MediaPlaylist } from "../parser/hls";
 import type { Session } from "../types";
 import { resolveUrl } from "../utils/url";
+import { formatAssetListPayload } from "./payload";
 
 export function rewriteMediaUrls(playlist: MediaPlaylist, playlistUrl: string) {
   for (const segment of playlist.segments) {
@@ -20,14 +21,18 @@ export function rewriteMediaUrls(playlist: MediaPlaylist, playlistUrl: string) {
 }
 
 export function addStaticDateRanges(playlist: MediaPlaylist, session: Session) {
-  // Grab a copy of the events in the session, we might add events from
-  // elsewhere later on.
-  const events = [...session.events];
+  const dateTimes: DateTime[] = [];
 
-  for (const event of events) {
-    const assetListUrl = `/out/${rison.encode({
+  for (const asset of session.assets) {
+    if (!dateTimes.some((dateTime) => asset.dateTime.equals(dateTime))) {
+      dateTimes.push(asset.dateTime);
+    }
+  }
+
+  for (const dateTime of dateTimes) {
+    const assetListUrl = `/out/${formatAssetListPayload({
       sessionId: session.id,
-      dateTime: event.dateTime.toISO(),
+      dateTime,
     })}/asset-list.json`;
 
     const clientAttributes: Record<string, number | string> = {
@@ -35,21 +40,17 @@ export function addStaticDateRanges(playlist: MediaPlaylist, session: Session) {
       "ASSET-LIST": assetListUrl,
       "CONTENT-MAY-VARY": "YES",
       "TIMELINE-STYLE": "HIGHLIGHT",
+      "RESUME-OFFSET": 0,
     };
 
-    // These are only for VOD.
-    clientAttributes["TIMELINE-OCCUPIES"] = "POINT";
-    clientAttributes["RESUME-OFFSET"] = event.duration ?? 0;
-
-    // Handle the preroll.
-    if (event.dateTime.equals(session.startTime)) {
+    if (dateTime.equals(session.startTime)) {
       clientAttributes.CUE = "ONCE,PRE";
     }
 
     playlist.dateRanges.push({
       classId: "com.apple.hls.interstitial",
-      id: `hlspresso.${event.dateTime.toMillis()}`,
-      startDate: event.dateTime,
+      id: `hlspresso.${dateTime.toMillis()}`,
+      startDate: dateTime,
       clientAttributes,
     });
   }

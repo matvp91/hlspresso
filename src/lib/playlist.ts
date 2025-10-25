@@ -5,11 +5,13 @@ import {
   parseMediaPlaylist,
   stringifyMainPlaylist,
   stringifyMediaPlaylist,
-} from "../parser";
+} from "../parser/hls";
+import { getVMAP } from "../parser/vmap";
 import type { Session } from "../types";
 import type { Bindings } from "../utils/bindings";
-import { resolveUrl } from "../utils/url";
+import { replaceUrlParams, resolveUrl } from "../utils/url";
 import type { MediaPayload } from "./payload";
+import { toDateTime, updateSession } from "./session";
 import { rewriteMainUrls } from "./transform-main";
 import {
   addStaticDateRanges,
@@ -20,14 +22,16 @@ import {
 type ProcessMainPlaylistParams = {
   bindings: Bindings;
   session: Session;
-  url: string;
 };
 
 export async function processMainPlaylist({
   bindings,
-  url,
+  session,
 }: ProcessMainPlaylistParams) {
-  const playlistText = await fetchText(url);
+  const { url } = session;
+  await initSessionOnMainRequest(bindings, session);
+
+  const playlistText = await ky.get(url).text();
   const playlist = parseMainPlaylist(playlistText);
 
   rewriteMainUrls(bindings, playlist);
@@ -47,7 +51,7 @@ export async function processMediaPlaylist({
   session,
   url,
 }: ProcessMediaPlaylistParams) {
-  const playlistText = await fetchText(url);
+  const playlistText = await ky.get(url).text();
   const playlist = parseMediaPlaylist(playlistText);
 
   ensureProgramDateTime(session, playlist);
@@ -60,8 +64,45 @@ export async function processMediaPlaylist({
   return stringifyMediaPlaylist(playlist);
 }
 
+async function initSessionOnMainRequest(bindings: Bindings, session: Session) {
+  let storeSession = false;
+
+  // If we have a vmap config but no result yet, we'll resolve it.
+  if (session.vmap) {
+    const vmap = await getVMAP({
+      url: replaceUrlParams(session.vmap),
+    });
+
+    // Delete the VMAP url. We don't need to parse it again.
+    session.vmap = undefined;
+
+    // Add each adBreak to the list of assets.
+    for (const adBreak of vmap.adBreaks) {
+      if (adBreak.url) {
+        session.assets.push({
+          type: "VAST",
+          dateTime: toDateTime(session.startTime, adBreak.time),
+          url: adBreak.url,
+        });
+      }
+      if (adBreak.data) {
+        session.assets.push({
+          type: "VASTDATA",
+          dateTime: toDateTime(session.startTime, adBreak.time),
+          data: adBreak.data,
+        });
+      }
+    }
+
+    storeSession = true;
+  }
+
+  if (storeSession) {
+    await updateSession(bindings, session);
+  }
+}
 export async function getDuration(mainUrl: string) {
-  const mainText = await fetchText(mainUrl);
+  const mainText = await ky.get(mainUrl).text();
   const main = parseMainPlaylist(mainText);
 
   const variant = main.variants[0];
@@ -73,7 +114,7 @@ export async function getDuration(mainUrl: string) {
     path: variant.uri,
   });
 
-  const mediaText = await fetchText(mediaUrl);
+  const mediaText = await ky.get(mediaUrl).text();
   const media = parseMediaPlaylist(mediaText);
 
   // Sum each segment duration to get a sense of what the total duration
@@ -81,8 +122,4 @@ export async function getDuration(mainUrl: string) {
   return media.segments.reduce((acc, segment) => {
     return acc + segment.duration;
   }, 0);
-}
-
-async function fetchText(url: string) {
-  return await ky.get(url).text();
 }
