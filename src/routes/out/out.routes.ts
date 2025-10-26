@@ -1,4 +1,5 @@
 import { createRoute, z } from "@hono/zod-openapi";
+import { assetListResponseSchema } from "../../schema";
 
 export const assetList = createRoute({
   hide: true,
@@ -18,14 +19,7 @@ export const assetList = createRoute({
       description: "The asset list",
       content: {
         "application/json": {
-          schema: z.object({
-            ASSETS: z.array(
-              z.object({
-                URI: z.string(),
-                DURATION: z.number(),
-              }),
-            ),
-          }),
+          schema: assetListResponseSchema,
         },
       },
     },

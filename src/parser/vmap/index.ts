@@ -34,10 +34,23 @@ function parseVMAP(text: string): VMAP {
     if (time === undefined) {
       continue;
     }
+    const adSource = doc.getElementsByTagName("vmap:AdSource")?.[0];
+    if (!adSource) {
+      continue;
+    }
+    const adTagUriNode = adSource.getElementsByTagName("vmap:AdTagURI")?.[0];
+    const adTagUri = adTagUriNode?.textContent;
+
+    const vastAdDataNode =
+      adSource.getElementsByTagName("vmap:VASTAdData")?.[0];
+    const vastAdData = vastAdDataNode?.firstChild
+      ? new XMLSerializer().serializeToString(vastAdDataNode.firstChild)
+      : undefined;
+
     adBreaks.push({
       time,
-      url: parseVASTUrl(node),
-      data: parseVASTData(node),
+      adTagUri,
+      vastAdData,
     });
   }
 
@@ -59,21 +72,4 @@ function parseTimeOffset(element: Element) {
     return undefined;
   }
   return toS(timeOffset);
-}
-
-function parseVASTUrl(element: Element) {
-  const node = element.getElementsByTagName("vmap:AdTagURI")?.[0];
-  if (!node) {
-    return undefined;
-  }
-  return node.textContent;
-}
-
-function parseVASTData(element: Element) {
-  const node = element.getElementsByTagName("vmap:VASTAdData")?.[0];
-  if (!node?.firstChild) {
-    return undefined;
-  }
-  const xmlSerializer = new XMLSerializer();
-  return xmlSerializer.serializeToString(node.firstChild);
 }

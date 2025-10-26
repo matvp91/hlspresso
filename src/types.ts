@@ -1,15 +1,19 @@
 import type { RouteConfig, RouteHandler, z } from "@hono/zod-openapi";
 import type { DateTime } from "luxon";
-import type { createSessionParamsSchema } from "./schema";
+import type {
+  assetListResponseSchema,
+  createSessionParamsSchema,
+} from "./schema";
 
 export type CreateSessionParams = z.infer<typeof createSessionParamsSchema>;
+
+export type AssetListResponse = z.infer<typeof assetListResponseSchema>;
 
 export type Asset = {
   dateTime: DateTime;
 } & (
   | { type: "URL"; url: string; duration: number }
-  | { type: "VAST"; url: string }
-  | { type: "VASTDATA"; data: string }
+  | { type: "VAST"; adTagUri?: string; vastAdData?: string }
 );
 
 export type Session = {

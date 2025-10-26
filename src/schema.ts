@@ -30,3 +30,12 @@ export const createSessionParamsSchema = z.object({
     })
     .optional(),
 });
+
+export const assetListResponseSchema = z.object({
+  ASSETS: z.array(
+    z.object({
+      URI: z.string(),
+      DURATION: z.number(),
+    }),
+  ),
+});

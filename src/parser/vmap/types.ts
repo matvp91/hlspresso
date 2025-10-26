@@ -1,7 +1,7 @@
 export type VMAPAdBreak = {
   time: number;
-  url?: string;
-  data?: string;
+  adTagUri?: string;
+  vastAdData?: string;
 };
 
 export type VMAP = {

@@ -1,0 +1,10 @@
+{
+  "name": "vast-client",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./index.mjs",
+  "types": "./index.d.ts",
+  "dependencies": {
+    "@xmldom/xmldom": "^0.8.10"
+  }
+}

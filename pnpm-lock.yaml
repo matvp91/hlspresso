@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@dailymotion/vast-client':
+        specifier: ^6.4.1
+        version: 6.4.1
       '@hono/node-server':
         specifier: ^1.19.5
         version: 1.19.5(hono@4.10.2)
@@ -135,6 +138,10 @@ packages:
 
   '@cloudflare/workers-types@4.20251014.0':
     resolution: {integrity: sha512-tEW98J/kOa0TdylIUOrLKRdwkUw0rvvYVlo+Ce0mqRH3c8kSoxLzUH9gfCvwLe0M89z1RkzFovSKAW2Nwtyn3w==}
+
+  '@dailymotion/vast-client@6.4.1':
+    resolution: {integrity: sha512-M0cgZEuS9O9IF8hS51xtxPfYzS2UxRVHCW/6ga/L14GKcv6oV32JIY2Ls0RUX2ER05ddWNmHnSmGfF9Ml9kKdw==}
+    engines: {node: '>=12.22.1'}
 
   '@esbuild/aix-ppc64@0.25.11':
     resolution: {integrity: sha512-Xt1dOL13m8u0WE8iplx9Ibbm+hFAO0GsU2P34UNoDGvZYkY8ifSiy6Zuc1lYxfG7svWE2fzqCUmFp5HCn51gJg==}
@@ -470,6 +477,10 @@ snapshots:
     optional: true
 
   '@cloudflare/workers-types@4.20251014.0': {}
+
+  '@dailymotion/vast-client@6.4.1':
+    dependencies:
+      '@xmldom/xmldom': 0.8.11
 
   '@esbuild/aix-ppc64@0.25.11':
     optional: true

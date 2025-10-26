@@ -78,20 +78,12 @@ async function initSessionOnMainRequest(bindings: Bindings, session: Session) {
 
     // Add each adBreak to the list of assets.
     for (const adBreak of vmap.adBreaks) {
-      if (adBreak.url) {
-        session.assets.push({
-          type: "VAST",
-          dateTime: toDateTime(session.startTime, adBreak.time),
-          url: adBreak.url,
-        });
-      }
-      if (adBreak.data) {
-        session.assets.push({
-          type: "VASTDATA",
-          dateTime: toDateTime(session.startTime, adBreak.time),
-          data: adBreak.data,
-        });
-      }
+      session.assets.push({
+        type: "VAST",
+        dateTime: toDateTime(session.startTime, adBreak.time),
+        adTagUri: adBreak.adTagUri,
+        vastAdData: adBreak.vastAdData,
+      });
     }
 
     storeSession = true;

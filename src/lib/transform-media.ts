@@ -1,4 +1,3 @@
-import type { DateTime } from "luxon";
 import { assert } from "../assert";
 import type { MediaPlaylist } from "../parser/hls";
 import type { Session } from "../types";
@@ -21,18 +20,17 @@ export function rewriteMediaUrls(playlist: MediaPlaylist, playlistUrl: string) {
 }
 
 export function addStaticDateRanges(playlist: MediaPlaylist, session: Session) {
-  const dateTimes: DateTime[] = [];
+  const addedTimes = new Set<string>();
 
   for (const asset of session.assets) {
-    if (!dateTimes.some((dateTime) => asset.dateTime.equals(dateTime))) {
-      dateTimes.push(asset.dateTime);
+    const key = asset.dateTime.toISO();
+    if (key === null || addedTimes.has(key)) {
+      continue;
     }
-  }
 
-  for (const dateTime of dateTimes) {
     const assetListUrl = `/out/${formatAssetListPayload({
       sessionId: session.id,
-      dateTime,
+      dateTime: asset.dateTime,
     })}/asset-list.json`;
 
     const clientAttributes: Record<string, number | string> = {
@@ -43,16 +41,18 @@ export function addStaticDateRanges(playlist: MediaPlaylist, session: Session) {
       "RESUME-OFFSET": 0,
     };
 
-    if (dateTime.equals(session.startTime)) {
+    if (asset.dateTime.equals(session.startTime)) {
       clientAttributes.CUE = "ONCE,PRE";
     }
 
     playlist.dateRanges.push({
       classId: "com.apple.hls.interstitial",
-      id: `hlspresso.${dateTime.toMillis()}`,
-      startDate: dateTime,
+      id: `${btoa(asset.dateTime.toMillis().toString())}`,
+      startDate: asset.dateTime,
       clientAttributes,
     });
+
+    addedTimes.add(key);
   }
 }
 

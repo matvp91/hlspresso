@@ -36,7 +36,7 @@ export async function createSession(
         session.assets.push({
           type: "VAST",
           dateTime,
-          url: asset.url,
+          adTagUri: asset.url,
         });
       }
     }
