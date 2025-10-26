@@ -1,5 +1,4 @@
 import type { RouteConfig, RouteHandler, z } from "@hono/zod-openapi";
-import type { VastTrackingEvents } from "extern/vast-client";
 import type { DateTime } from "luxon";
 import type {
   assetListResponseSchema,
@@ -10,31 +9,32 @@ export type CreateSessionParams = z.infer<typeof createSessionParamsSchema>;
 
 export type AssetListResponse = z.infer<typeof assetListResponseSchema>;
 
-export type AssetTracking = {
-  impression?: string[];
-};
-
-export type Asset = {
-  dateTime: DateTime;
-  tracking?: VastTrackingEvents;
-} & (
+export type Asset =
   | {
-      type: "URL";
+      type: "STATIC";
       url: string;
       duration: number;
     }
   | {
       type: "VAST";
-      adTagUri?: string;
-      vastAdData?: string;
+      url: string;
     }
-);
+  | {
+      type: "VASTDATA";
+      data: string;
+    };
+
+export type Interstitial = {
+  dateTime: DateTime;
+  duration?: number;
+  assets: Asset[];
+};
 
 export type Session = {
   id: string;
   startTime: DateTime;
   url: string;
-  assets: Asset[];
+  interstitials: Interstitial[];
   vmap?: string;
 };
 

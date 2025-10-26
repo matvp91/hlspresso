@@ -1,5 +1,6 @@
 import { DateTime } from "luxon";
 import rison from "rison";
+import { ApiError, ApiErrorCode } from "src/error";
 import type { IntendedAny } from "../types";
 import type { Bindings } from "../utils/bindings";
 
@@ -9,11 +10,18 @@ export interface MediaPayload {
 }
 
 export function parseMediaPayload(_: Bindings, value: string): MediaPayload {
-  return rison.decode<MediaPayload>(value);
+  const data = rison.decode<IntendedAny>(value);
+  return {
+    ...data,
+    path: decodeURIComponent(data.path),
+  };
 }
 
 export function formatMediaPayload(_: Bindings, payload: MediaPayload) {
-  return rison.encode(payload);
+  return rison.encode({
+    ...payload,
+    path: encodeURIComponent(payload.path),
+  });
 }
 
 export interface AssetListPayload {
@@ -33,4 +41,14 @@ export function formatAssetListPayload(payload: AssetListPayload) {
     ...payload,
     dateTime: payload.dateTime.toISO(),
   });
+}
+
+export function extractPayloadString(path: string, name: string) {
+  const regex = new RegExp(`${name}/(\\([^)]+\\))`);
+  const value = path.match(regex)?.[1];
+  console.log(value);
+  if (!value) {
+    throw new ApiError(ApiErrorCode.INVALID_PAYLOAD);
+  }
+  return value;
 }

@@ -20,17 +20,12 @@ export function rewriteMediaUrls(playlist: MediaPlaylist, playlistUrl: string) {
 }
 
 export function addStaticDateRanges(playlist: MediaPlaylist, session: Session) {
-  const addedTimes = new Set<string>();
+  const isLive = !playlist.endlist;
 
-  for (const asset of session.assets) {
-    const key = asset.dateTime.toISO();
-    if (key === null || addedTimes.has(key)) {
-      continue;
-    }
-
+  for (const interstitial of session.interstitials) {
     const assetListUrl = `/out/${session.id}/interstitial/${formatAssetListPayload(
       {
-        dateTime: asset.dateTime,
+        dateTime: interstitial.dateTime,
       },
     )}/asset-list.json`;
 
@@ -39,21 +34,26 @@ export function addStaticDateRanges(playlist: MediaPlaylist, session: Session) {
       "ASSET-LIST": assetListUrl,
       "CONTENT-MAY-VARY": "YES",
       "TIMELINE-STYLE": "HIGHLIGHT",
-      "RESUME-OFFSET": 0,
     };
+    if (!isLive) {
+      clientAttributes["RESUME-OFFSET"] = 0;
+    }
+    if (interstitial.duration) {
+      clientAttributes["TIMELINE-OCCUPIES"] = "POINT";
+      clientAttributes["PLAYOUT-LIMIT"] = interstitial.duration;
+      clientAttributes["RESUME-OFFSET"] = interstitial.duration;
+    }
 
-    if (asset.dateTime.equals(session.startTime)) {
+    if (interstitial.dateTime.equals(session.startTime)) {
       clientAttributes.CUE = "ONCE,PRE";
     }
 
     playlist.dateRanges.push({
       classId: "com.apple.hls.interstitial",
-      id: `${btoa(asset.dateTime.toMillis().toString())}`,
-      startDate: asset.dateTime,
+      id: `${btoa(interstitial.dateTime.toMillis().toString())}`,
+      startDate: interstitial.dateTime,
       clientAttributes,
     });
-
-    addedTimes.add(key);
   }
 }
 

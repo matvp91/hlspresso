@@ -1,7 +1,12 @@
 import crypto from "node:crypto";
 import { DateTime } from "luxon";
 import { ApiError, ApiErrorCode } from "../error";
-import type { CreateSessionParams, Session } from "../types";
+import type {
+  Asset,
+  CreateSessionParams,
+  Interstitial,
+  Session,
+} from "../types";
 import type { Bindings } from "../utils/bindings";
 import { SuperJSON } from "../utils/json";
 import { getDuration } from "./playlist";
@@ -17,28 +22,39 @@ export async function createSession(
     id,
     startTime,
     url: params.url,
-    assets: [],
+    interstitials: [],
     vmap: params.vmap?.url,
   };
 
-  if (params.assets) {
-    for (const asset of params.assets) {
-      const dateTime = toDateTime(session.startTime, asset.time);
-      if (asset.type === "URL") {
-        session.assets.push({
-          type: "URL",
-          dateTime,
-          url: asset.url,
-          duration: await getDuration(asset.url),
-        });
-      }
-      if (asset.type === "VAST") {
-        session.assets.push({
-          type: "VAST",
-          dateTime,
-          adTagUri: asset.url,
-        });
-      }
+  if (params.interstitials) {
+    for (const value of params.interstitials) {
+      const assets: Asset[] = value.assets
+        ? await Promise.all(
+            value.assets.map(async (asset) => {
+              if (asset.type === "static") {
+                const duration = await getDuration(asset.url);
+                return {
+                  type: "STATIC",
+                  url: asset.url,
+                  duration,
+                };
+              }
+              if (asset.type === "vast") {
+                return {
+                  type: "VAST",
+                  url: asset.url,
+                };
+              }
+              throw new Error("Unmapped asset type.");
+            }),
+          )
+        : [];
+      const interstitial: Interstitial = {
+        dateTime: toDateTime(session.startTime, value.time),
+        duration: value.duration,
+        assets,
+      };
+      pushInterstitial(session.interstitials, interstitial);
     }
   }
 
@@ -66,4 +82,28 @@ export function toDateTime(startTime: DateTime, time: string | number) {
   return typeof time === "string"
     ? DateTime.fromISO(time)
     : startTime.plus({ seconds: time });
+}
+
+export function pushInterstitial(
+  interstitials: Interstitial[],
+  value: Interstitial,
+) {
+  const target = interstitials.find((interstitial) =>
+    interstitial.dateTime.equals(value.dateTime),
+  );
+  if (!target) {
+    // Create, if not exists.
+    interstitials.push(value);
+  } else {
+    // Merge.
+    if (value.assets) {
+      if (!target.assets) {
+        target.assets = [];
+      }
+      target.assets.push(...value.assets);
+    }
+    if (value.duration) {
+      target.duration = value.duration;
+    }
+  }
 }

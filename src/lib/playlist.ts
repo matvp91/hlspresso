@@ -7,11 +7,12 @@ import {
   stringifyMediaPlaylist,
 } from "../parser/hls";
 import { getVMAP } from "../parser/vmap";
-import type { Session } from "../types";
+import type { Interstitial, Session } from "../types";
 import type { Bindings } from "../utils/bindings";
 import { replaceUrlParams, resolveUrl } from "../utils/url";
 import type { MediaPayload } from "./payload";
 import { toDateTime, updateSession } from "./session";
+import { pushInterstitial } from "./session";
 import { rewriteMainUrls } from "./transform-main";
 import {
   addStaticDateRanges,
@@ -78,12 +79,20 @@ async function initSessionOnMainRequest(bindings: Bindings, session: Session) {
 
     // Add each adBreak to the list of assets.
     for (const adBreak of vmap.adBreaks) {
-      session.assets.push({
-        type: "VAST",
+      if (!adBreak.adTagUri) {
+        // TODO: Support vastAdData too.
+        continue;
+      }
+      const interstitial: Interstitial = {
         dateTime: toDateTime(session.startTime, adBreak.time),
-        adTagUri: adBreak.adTagUri,
-        vastAdData: adBreak.vastAdData,
-      });
+        assets: [
+          {
+            type: "VAST",
+            url: adBreak.adTagUri,
+          },
+        ],
+      };
+      pushInterstitial(session.interstitials, interstitial);
     }
 
     storeSession = true;

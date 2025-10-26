@@ -6,13 +6,11 @@ import { replaceUrlParams } from "../utils/url";
 export async function resolveFromVASTAsset(
   vastAsset: Extract<Asset, { type: "VAST" }>,
 ) {
-  const assets: Extract<Asset, { type: "URL" }>[] = [];
+  const assets: Extract<Asset, { type: "STATIC" }>[] = [];
 
-  if (vastAsset.adTagUri) {
+  if (vastAsset.url) {
     const vastClient = new VASTClient();
-    const vastResponse = await vastClient.get(
-      replaceUrlParams(vastAsset.adTagUri),
-    );
+    const vastResponse = await vastClient.get(replaceUrlParams(vastAsset.url));
     for (const ad of vastResponse.ads) {
       const creative = ad.creatives.find(
         (creative) => creative.type === "linear",
@@ -27,11 +25,9 @@ export async function resolveFromVASTAsset(
         continue;
       }
       assets.push({
-        type: "URL",
-        dateTime: vastAsset.dateTime,
+        type: "STATIC",
         url: mediaFile.fileURL,
         duration: creative.duration,
-        tracking: creative.trackingEvents,
       });
     }
   }
