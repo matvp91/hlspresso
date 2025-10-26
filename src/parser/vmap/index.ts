@@ -34,7 +34,7 @@ function parseVMAP(text: string): VMAP {
     if (time === undefined) {
       continue;
     }
-    const adSource = doc.getElementsByTagName("vmap:AdSource")?.[0];
+    const adSource = node.getElementsByTagName("vmap:AdSource")?.[0];
     if (!adSource) {
       continue;
     }

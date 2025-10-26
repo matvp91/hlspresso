@@ -1,7 +1,7 @@
 {
   "name": "hlspresso",
   "scripts": {
-    "dev": "concurrently \"esbuild src/index.ts --bundle --outfile=dist/index.js --platform=node --format=cjs --watch\" \"node --env-file=.env --watch dist/index.js\""
+    "dev": "concurrently \"esbuild src/index.ts --bundle --outfile=dist/index.js --sourcemap --platform=node --format=cjs --watch\" \"node --inspect --env-file=.env --watch dist/index.js\""
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
