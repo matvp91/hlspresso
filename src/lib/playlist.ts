@@ -1,6 +1,8 @@
 import ky from "ky";
 import { assert } from "../assert";
 import {
+  type MainPlaylist,
+  type MediaPlaylist,
   parseMainPlaylist,
   parseMediaPlaylist,
   stringifyMainPlaylist,
@@ -10,15 +12,10 @@ import { getVMAP } from "../parser/vmap";
 import type { Interstitial, Session } from "../types";
 import type { Bindings } from "../utils/bindings";
 import { replaceUrlParams, resolveUrl } from "../utils/url";
-import type { MediaPayload } from "./payload";
+import { addInterstitialDateRanges } from "./interstitials";
+import { type MediaPayload, formatMediaPayload } from "./payload";
 import { toDateTime, updateSession } from "./session";
 import { pushInterstitial } from "./session";
-import { rewriteMainUrls } from "./transform-main";
-import {
-  addStaticDateRanges,
-  ensureProgramDateTime,
-  rewriteMediaUrls,
-} from "./transform-media";
 
 type ProcessMainPlaylistParams = {
   bindings: Bindings;
@@ -30,12 +27,12 @@ export async function processMainPlaylist({
   session,
 }: ProcessMainPlaylistParams) {
   const { url } = session;
-  await initSessionOnMainRequest(bindings, session);
+  await updateSessionOnMainPlaylist(bindings, session);
 
   const playlistText = await ky.get(url).text();
   const playlist = parseMainPlaylist(playlistText);
 
-  rewriteMainUrls(bindings, playlist);
+  rewriteMediaUrlsInMain(bindings, playlist);
 
   return stringifyMainPlaylist(playlist);
 }
@@ -44,28 +41,40 @@ type ProcessMediaPlaylistParams = {
   bindings: Bindings;
   session: Session;
   payload: MediaPayload;
-  url: string;
+  origUrl: string;
 };
 
 export async function processMediaPlaylist({
   payload,
   session,
-  url,
+  origUrl,
 }: ProcessMediaPlaylistParams) {
-  const playlistText = await ky.get(url).text();
+  const playlistText = await ky.get(origUrl).text();
   const playlist = parseMediaPlaylist(playlistText);
 
-  ensureProgramDateTime(session, playlist);
-  rewriteMediaUrls(playlist, url);
+  const isLive = !playlist.endlist;
+
+  if (!isLive) {
+    addSessionStartTimeAsPDT(session, playlist);
+  }
+
+  rewriteSegmentUrlsInMedia(playlist, origUrl);
 
   if (payload.type === "video") {
-    addStaticDateRanges(playlist, session);
+    addInterstitialDateRanges({
+      session,
+      playlist,
+      isLive,
+    });
   }
 
   return stringifyMediaPlaylist(playlist);
 }
 
-async function initSessionOnMainRequest(bindings: Bindings, session: Session) {
+async function updateSessionOnMainPlaylist(
+  bindings: Bindings,
+  session: Session,
+) {
   let storeSession = false;
 
   // If we have a vmap config but no result yet, we'll resolve it.
@@ -123,4 +132,54 @@ export async function getDuration(mainUrl: string) {
   return media.segments.reduce((acc, segment) => {
     return acc + segment.duration;
   }, 0);
+}
+
+function rewriteMediaUrlsInMain(bindings: Bindings, playlist: MainPlaylist) {
+  let index = 0;
+  for (const variant of playlist.variants) {
+    index++;
+    variant.uri = `media/${formatMediaPayload(bindings, {
+      type: "video",
+      path: variant.uri,
+    })}/video_${index}.m3u8`;
+  }
+  for (const media of playlist.medias) {
+    index++;
+    const name = `${media.type.toLowerCase()}_${index}`;
+    if (media.type === "AUDIO") {
+      media.uri = `media/${formatMediaPayload(bindings, {
+        type: "audio",
+        path: media.uri,
+      })}/${name}.m3u8`;
+    }
+    if (media.type === "SUBTITLES") {
+      media.uri = `media/${formatMediaPayload(bindings, {
+        type: "subtitles",
+        path: media.uri,
+      })}/${name}.m3u8`;
+    }
+  }
+}
+
+function rewriteSegmentUrlsInMedia(playlist: MediaPlaylist, origUrl: string) {
+  for (const segment of playlist.segments) {
+    segment.uri = resolveUrl({
+      baseUrl: origUrl,
+      path: segment.uri,
+    });
+    if (segment.map) {
+      segment.map.uri = resolveUrl({
+        baseUrl: origUrl,
+        path: segment.map.uri,
+      });
+    }
+  }
+}
+
+function addSessionStartTimeAsPDT(session: Session, playlist: MediaPlaylist) {
+  const firstSegment = playlist.segments[0];
+  // Add our own PDT when VOD, we'll use this to insert
+  // date ranges relative to the start of the session.
+  assert(firstSegment, "Missing first segment");
+  firstSegment.programDateTime = session.startTime;
 }

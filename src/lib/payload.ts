@@ -1,16 +1,12 @@
 import { DateTime } from "luxon";
 import rison from "rison";
-import { ApiError, ApiErrorCode } from "src/error";
-import type { IntendedAny } from "../types";
+import { ApiError, ApiErrorCode } from "../error";
+import type { AssetListPayload, IntendedAny, MediaPayload } from "../types";
 import type { Bindings } from "../utils/bindings";
 
-export interface MediaPayload {
-  type: "video" | "audio" | "subtitles";
-  path: string;
-}
-
-export function parseMediaPayload(_: Bindings, value: string): MediaPayload {
-  const data = rison.decode<IntendedAny>(value);
+export function parseMediaPayload(_: Bindings, path: string): MediaPayload {
+  const payloadStr = findPayloadStrInPath(path, "media");
+  const data = rison.decode<IntendedAny>(payloadStr);
   return {
     ...data,
     path: decodeURIComponent(data.path),
@@ -24,12 +20,9 @@ export function formatMediaPayload(_: Bindings, payload: MediaPayload) {
   });
 }
 
-export interface AssetListPayload {
-  dateTime: DateTime;
-}
-
-export function parseAssetListPayload(value: string) {
-  const data = rison.decode<IntendedAny>(value);
+export function parseAssetListPayload(path: string) {
+  const payloadStr = findPayloadStrInPath(path, "asset-list");
+  const data = rison.decode<IntendedAny>(payloadStr);
   return {
     ...data,
     dateTime: DateTime.fromISO(data.dateTime),
@@ -43,10 +36,9 @@ export function formatAssetListPayload(payload: AssetListPayload) {
   });
 }
 
-export function extractPayloadString(path: string, name: string) {
+function findPayloadStrInPath(path: string, name: string) {
   const regex = new RegExp(`${name}/(\\([^)]+\\))`);
   const value = path.match(regex)?.[1];
-  console.log(value);
   if (!value) {
     throw new ApiError(ApiErrorCode.INVALID_PAYLOAD);
   }

@@ -38,6 +38,15 @@ export type Session = {
   vmap?: string;
 };
 
+export interface MediaPayload {
+  type: "video" | "audio" | "subtitles";
+  path: string;
+}
+
+export interface AssetListPayload {
+  dateTime: DateTime;
+}
+
 export type ValueOf<T> = T[keyof T];
 
 // biome-ignore lint/suspicious/noExplicitAny: Intended

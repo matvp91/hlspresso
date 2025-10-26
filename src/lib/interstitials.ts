@@ -1,27 +1,22 @@
-import { assert } from "../assert";
 import type { MediaPlaylist } from "../parser/hls";
 import type { Session } from "../types";
-import { resolveUrl } from "../utils/url";
 import { formatAssetListPayload } from "./payload";
 
-export function rewriteMediaUrls(playlist: MediaPlaylist, playlistUrl: string) {
-  for (const segment of playlist.segments) {
-    segment.uri = resolveUrl({
-      baseUrl: playlistUrl,
-      path: segment.uri,
-    });
-    if (segment.map) {
-      segment.map.uri = resolveUrl({
-        baseUrl: playlistUrl,
-        path: segment.map.uri,
-      });
-    }
-  }
-}
+type AddInterstitialDateRangesParams = {
+  session: Session;
+  playlist: MediaPlaylist;
 
-export function addStaticDateRanges(playlist: MediaPlaylist, session: Session) {
-  const isLive = !playlist.endlist;
+  isLive: boolean;
+};
 
+/**
+ * Add interstitial daterange tags per session.
+ */
+export function addInterstitialDateRanges({
+  session,
+  playlist,
+  isLive,
+}: AddInterstitialDateRangesParams) {
   for (const interstitial of session.interstitials) {
     const assetListUrl = `/out/${session.id}/interstitial/${formatAssetListPayload(
       {
@@ -39,9 +34,7 @@ export function addStaticDateRanges(playlist: MediaPlaylist, session: Session) {
       clientAttributes["RESUME-OFFSET"] = 0;
     }
     if (interstitial.duration) {
-      clientAttributes["TIMELINE-OCCUPIES"] = "POINT";
       clientAttributes["PLAYOUT-LIMIT"] = interstitial.duration;
-      clientAttributes["RESUME-OFFSET"] = interstitial.duration;
     }
 
     if (interstitial.dateTime.equals(session.startTime)) {
@@ -53,19 +46,7 @@ export function addStaticDateRanges(playlist: MediaPlaylist, session: Session) {
       id: `${btoa(interstitial.dateTime.toMillis().toString())}`,
       startDate: interstitial.dateTime,
       clientAttributes,
+      plannedDuration: interstitial.duration,
     });
-  }
-}
-
-export function ensureProgramDateTime(
-  session: Session,
-  playlist: MediaPlaylist,
-) {
-  const firstSegment = playlist.segments[0];
-  if (playlist.endlist) {
-    // Add our own PDT when VOD, we'll use this to insert
-    // date ranges relative to the start of the session.
-    assert(firstSegment, "Missing first segment");
-    firstSegment.programDateTime = session.startTime;
   }
 }

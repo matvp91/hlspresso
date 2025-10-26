@@ -43,10 +43,10 @@ export const media = createRoute({
   },
 });
 
-export const interstitial = createRoute({
+export const assetList = createRoute({
   hide: true,
   method: "get",
-  path: "/out/:sessionId/interstitial/*",
+  path: "/out/:sessionId/asset-list/*",
   request: {
     params: z.object({
       sessionId: z.string(),
@@ -68,8 +68,8 @@ export const interstitial = createRoute({
   },
 });
 
-export type InterstitialRoute = typeof interstitial;
-
 export type MainRoute = typeof main;
 
 export type MediaRoute = typeof media;
+
+export type AssetListRoute = typeof assetList;

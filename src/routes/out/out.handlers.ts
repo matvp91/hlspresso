@@ -1,16 +1,12 @@
 import { processMainPlaylist, processMediaPlaylist } from "../..//lib/playlist";
-import {
-  extractPayloadString,
-  parseAssetListPayload,
-  parseMediaPayload,
-} from "../../lib/payload";
+import { parseAssetListPayload, parseMediaPayload } from "../../lib/payload";
 import { getSession } from "../../lib/session";
 import { resolveFromVASTAsset } from "../../lib/vast";
 import type { AppRouteHandler } from "../../types";
 import type { AssetListResponse } from "../../types";
 import { getBindings } from "../../utils/bindings";
 import { resolveUrl } from "../../utils/url";
-import type { InterstitialRoute, MainRoute, MediaRoute } from "./out.routes";
+import type { AssetListRoute, MainRoute, MediaRoute } from "./out.routes";
 
 export const main: AppRouteHandler<MainRoute> = async (c) => {
   const bindings = await getBindings(c);
@@ -34,10 +30,9 @@ export const media: AppRouteHandler<MediaRoute> = async (c) => {
   const { sessionId } = c.req.valid("param");
   const session = await getSession(bindings, sessionId);
 
-  const payloadString = extractPayloadString(c.req.path, "media");
-  const payload = parseMediaPayload(bindings, payloadString);
+  const payload = parseMediaPayload(bindings, c.req.path);
 
-  const url = resolveUrl({
+  const origUrl = resolveUrl({
     baseUrl: session.url,
     path: payload.path,
   });
@@ -46,7 +41,7 @@ export const media: AppRouteHandler<MediaRoute> = async (c) => {
     bindings,
     session,
     payload,
-    url,
+    origUrl,
   });
 
   return c.text(text, 200, {
@@ -54,14 +49,13 @@ export const media: AppRouteHandler<MediaRoute> = async (c) => {
   });
 };
 
-export const interstitial: AppRouteHandler<InterstitialRoute> = async (c) => {
+export const assetList: AppRouteHandler<AssetListRoute> = async (c) => {
   const bindings = await getBindings(c);
 
   const { sessionId } = c.req.valid("param");
   const session = await getSession(bindings, sessionId);
 
-  const payloadString = extractPayloadString(c.req.path, "interstitial");
-  const payload = parseAssetListPayload(payloadString);
+  const payload = parseAssetListPayload(c.req.path);
 
   const data: AssetListResponse = {
     ASSETS: [],
