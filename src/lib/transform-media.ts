@@ -28,10 +28,11 @@ export function addStaticDateRanges(playlist: MediaPlaylist, session: Session) {
       continue;
     }
 
-    const assetListUrl = `/out/${formatAssetListPayload({
-      sessionId: session.id,
-      dateTime: asset.dateTime,
-    })}/asset-list.json`;
+    const assetListUrl = `/out/${session.id}/interstitial/${formatAssetListPayload(
+      {
+        dateTime: asset.dateTime,
+      },
+    )}/asset-list.json`;
 
     const clientAttributes: Record<string, number | string> = {
       RESTRICT: "SKIP,JUMP",

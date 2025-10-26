@@ -4,10 +4,10 @@ import { assetListResponseSchema } from "../../schema";
 export const assetList = createRoute({
   hide: true,
   method: "get",
-  path: "/out/:payload/asset-list.json",
+  path: "/out/:sessionId/interstitial/*",
   request: {
     params: z.object({
-      payload: z.string(),
+      sessionId: z.string(),
     }),
     query: z.object({
       _HLS_primary_id: z.string().optional(),

@@ -17,7 +17,6 @@ export function formatMediaPayload(_: Bindings, payload: MediaPayload) {
 }
 
 export interface AssetListPayload {
-  sessionId: string;
   dateTime: DateTime;
 }
 

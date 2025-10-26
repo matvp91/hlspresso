@@ -1,3 +1,4 @@
+import { ApiError, ApiErrorCode } from "src/error";
 import { parseAssetListPayload } from "../../lib/payload";
 import { getSession } from "../../lib/session";
 import { resolveFromVASTAsset } from "../../lib/vast";
@@ -9,17 +10,22 @@ import type { AssetListRoute } from "./out.routes";
 export const assetList: AppRouteHandler<AssetListRoute> = async (c) => {
   const bindings = await getBindings(c);
 
-  const { payload } = c.req.valid("param");
-  const assetListPayload = parseAssetListPayload(payload);
+  const { sessionId } = c.req.valid("param");
+  const session = await getSession(bindings, sessionId);
 
-  const session = await getSession(bindings, assetListPayload.sessionId);
+  const payloadString = c.req.path.match(/interstitial\/(\([^)]+\))/)?.[1];
+  if (!payloadString) {
+    throw new ApiError(ApiErrorCode.INVALID_PAYLOAD);
+  }
+
+  const payload = parseAssetListPayload(payloadString);
 
   const data: AssetListResponse = {
     ASSETS: [],
   };
 
   const assets = session.assets.filter((asset) =>
-    asset.dateTime.equals(assetListPayload.dateTime),
+    asset.dateTime.equals(payload.dateTime),
   );
 
   for (const asset of assets) {
