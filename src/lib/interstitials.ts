@@ -18,7 +18,7 @@ export function addInterstitialDateRanges({
   isLive,
 }: AddInterstitialDateRangesParams) {
   for (const interstitial of session.interstitials) {
-    const assetListUrl = `/out/${session.id}/interstitial/${formatAssetListPayload(
+    const assetListUrl = `/out/${session.id}/asset-list/${formatAssetListPayload(
       {
         dateTime: interstitial.dateTime,
       },

@@ -1,19 +1,18 @@
 import ky from "ky";
 import { assert } from "../assert";
 import {
-  type MainPlaylist,
-  type MediaPlaylist,
   parseMainPlaylist,
   parseMediaPlaylist,
   stringifyMainPlaylist,
   stringifyMediaPlaylist,
 } from "../parser/hls";
+import type { MainPlaylist, MediaPlaylist } from "../parser/hls";
 import { getVMAP } from "../parser/vmap";
-import type { Interstitial, Session } from "../types";
+import type { Interstitial, MediaPayload, Session } from "../types";
 import type { Bindings } from "../utils/bindings";
 import { replaceUrlParams, resolveUrl } from "../utils/url";
 import { addInterstitialDateRanges } from "./interstitials";
-import { type MediaPayload, formatMediaPayload } from "./payload";
+import { formatMediaPayload } from "./payload";
 import { toDateTime, updateSession } from "./session";
 import { pushInterstitial } from "./session";
 
