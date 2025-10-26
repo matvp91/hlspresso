@@ -38,9 +38,6 @@ importers:
       redis:
         specifier: ^5.9.0
         version: 5.9.0
-      rison:
-        specifier: ^0.1.1
-        version: 0.1.1
       superjson:
         specifier: ^2.2.3
         version: 2.2.3
@@ -404,9 +401,6 @@ packages:
     resolution: {integrity: sha512-E8dQVLSyH6UE/C9darFuwq4usOPrqfZ1864kI4RFbr5Oj9ioB9qPF0oJMwX7s8mf6sPYrz84x/Dx1PGF3/0EaQ==}
     engines: {node: '>= 18'}
 
-  rison@0.1.1:
-    resolution: {integrity: sha512-8C+/PKKTaAYE2quDtOUwny/eQpNn9YGby7T80wntbVWSGvw0aUT9M0YgLdLkUgIQzQwaB1ZTr80rwLVKyohHig==}
-
   superjson@2.2.3:
     resolution: {integrity: sha512-ay3d+LW/S6yppKoTz3Bq4mG0xrS5bFwfWEBmQfbC7lt5wmtk+Obq0TxVuA9eYRirBTQb1K3eEpBRHMQEo0WyVw==}
     engines: {node: '>=16'}
@@ -669,8 +663,6 @@ snapshots:
       '@redis/json': 5.9.0(@redis/client@5.9.0)
       '@redis/search': 5.9.0(@redis/client@5.9.0)
       '@redis/time-series': 5.9.0(@redis/client@5.9.0)
-
-  rison@0.1.1: {}
 
   superjson@2.2.3:
     dependencies:

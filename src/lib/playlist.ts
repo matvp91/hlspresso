@@ -8,13 +8,13 @@ import {
 } from "../parser/hls";
 import type { MainPlaylist, MediaPlaylist } from "../parser/hls";
 import { getVMAP } from "../parser/vmap";
-import type { Interstitial, MediaPayload, Session } from "../types";
+import type { Interstitial, MediaSig, Session } from "../types";
 import type { Bindings } from "../utils/bindings";
 import { replaceUrlParams, resolveUrl } from "../utils/url";
 import { addInterstitialDateRanges } from "./interstitials";
-import { formatMediaPayload } from "./payload";
 import { toDateTime, updateSession } from "./session";
 import { pushInterstitial } from "./session";
+import { formatSig } from "./signature";
 
 type ProcessMainPlaylistParams = {
   bindings: Bindings;
@@ -31,23 +31,25 @@ export async function processMainPlaylist({
   const playlistText = await ky.get(url).text();
   const playlist = parseMainPlaylist(playlistText);
 
-  rewriteMediaUrlsInMain(bindings, playlist);
+  rewriteMediaUrlsInMain(playlist);
 
   return stringifyMainPlaylist(playlist);
 }
 
 type ProcessMediaPlaylistParams = {
-  bindings: Bindings;
   session: Session;
-  payload: MediaPayload;
-  origUrl: string;
+  sig: MediaSig;
 };
 
 export async function processMediaPlaylist({
-  payload,
   session,
-  origUrl,
+  sig,
 }: ProcessMediaPlaylistParams) {
+  const origUrl = resolveUrl({
+    baseUrl: session.url,
+    path: sig.path,
+  });
+
   const playlistText = await ky.get(origUrl).text();
   const playlist = parseMediaPlaylist(playlistText);
 
@@ -59,7 +61,7 @@ export async function processMediaPlaylist({
 
   rewriteSegmentUrlsInMedia(playlist, origUrl);
 
-  if (payload.type === "video") {
+  if (sig.type === "video") {
     addInterstitialDateRanges({
       session,
       playlist,
@@ -133,29 +135,26 @@ export async function getDuration(mainUrl: string) {
   }, 0);
 }
 
-function rewriteMediaUrlsInMain(bindings: Bindings, playlist: MainPlaylist) {
+function rewriteMediaUrlsInMain(playlist: MainPlaylist) {
   let index = 0;
   for (const variant of playlist.variants) {
-    index++;
-    variant.uri = `media/${formatMediaPayload(bindings, {
+    variant.uri = `media/video_${++index}.m3u8?sig=${formatSig<MediaSig>({
       type: "video",
       path: variant.uri,
-    })}/video_${index}.m3u8`;
+    })}`;
   }
   for (const media of playlist.medias) {
-    index++;
-    const name = `${media.type.toLowerCase()}_${index}`;
     if (media.type === "AUDIO") {
-      media.uri = `media/${formatMediaPayload(bindings, {
+      media.uri = `media/audio_${++index}.m3u8?sig=${formatSig<MediaSig>({
         type: "audio",
         path: media.uri,
-      })}/${name}.m3u8`;
+      })}`;
     }
     if (media.type === "SUBTITLES") {
-      media.uri = `media/${formatMediaPayload(bindings, {
+      media.uri = `media/subtitles_${++index}.m3u8?sig=${formatSig<MediaSig>({
         type: "subtitles",
         path: media.uri,
-      })}/${name}.m3u8`;
+      })}`;
     }
   }
 }

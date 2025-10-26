@@ -38,12 +38,12 @@ export type Session = {
   vmap?: string;
 };
 
-export interface MediaPayload {
+export interface MediaSig {
   type: "video" | "audio" | "subtitles";
   path: string;
 }
 
-export interface AssetListPayload {
+export interface AssetListSig {
   dateTime: DateTime;
 }
 
