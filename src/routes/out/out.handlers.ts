@@ -35,6 +35,7 @@ export const assetList: AppRouteHandler<AssetListRoute> = async (c) => {
         data.ASSETS.push({
           URI: vastAsset.url,
           DURATION: vastAsset.duration,
+          TRACKING: vastAsset.tracking,
         });
       }
     }

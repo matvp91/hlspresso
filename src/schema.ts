@@ -36,6 +36,7 @@ export const assetListResponseSchema = z.object({
     z.object({
       URI: z.string(),
       DURATION: z.number(),
+      TRACKING: z.any().optional(),
     }),
   ),
 });

@@ -31,6 +31,7 @@ export async function resolveFromVASTAsset(
         dateTime: vastAsset.dateTime,
         url: mediaFile.fileURL,
         duration: creative.duration,
+        tracking: creative.trackingEvents,
       });
     }
   }
