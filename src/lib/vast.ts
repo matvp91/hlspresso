@@ -1,6 +1,7 @@
 import { VASTClient } from "extern/vast-client";
 import type { VastCreativeLinear } from "extern/vast-client";
 import type { Asset } from "../types";
+import { replaceUrlParams } from "../utils/url";
 
 export async function resolveFromVASTAsset(
   vastAsset: Extract<Asset, { type: "VAST" }>,
@@ -9,7 +10,9 @@ export async function resolveFromVASTAsset(
 
   if (vastAsset.adTagUri) {
     const vastClient = new VASTClient();
-    const vastResponse = await vastClient.get(vastAsset.adTagUri);
+    const vastResponse = await vastClient.get(
+      replaceUrlParams(vastAsset.adTagUri),
+    );
     for (const ad of vastResponse.ads) {
       const creative = ad.creatives.find(
         (creative) => creative.type === "linear",
