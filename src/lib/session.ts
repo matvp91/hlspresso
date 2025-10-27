@@ -74,17 +74,20 @@ export async function createSession(
 export async function getSession(bindings: Bindings, id: string) {
   const json = await bindings.kv.get(`session:${id}`);
   if (!json) {
-    throw new ApiError(
-      "SESSION_NOT_FOUND",
-      `Session with id ${id} cannot be found`,
-    );
+    throw new ApiError({
+      code: "NOT_FOUND",
+      message: "Session not found",
+    });
   }
   const session = sessionSchema.parse(json);
 
   // Check if the session is expired, we might still have it in kv.
   const expiryDate = session.startTime.plus({ seconds: session.expiry });
   if (DateTime.now() > expiryDate) {
-    throw new ApiError("SESSION_NOT_FOUND", "Session is expired");
+    throw new ApiError({
+      code: "NOT_FOUND",
+      message: "Session is expired",
+    });
   }
 
   return session;

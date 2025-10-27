@@ -1,7 +1,6 @@
 import { z } from "@hono/zod-openapi";
 import { DateTime } from "luxon";
 import rison from "rison";
-import { ApiError } from "./error";
 
 const dateTimeSchema = z.codec(
   z.string(),
@@ -10,14 +9,14 @@ const dateTimeSchema = z.codec(
     decode: (value) => {
       const dateTime = DateTime.fromISO(value);
       if (!dateTime.isValid) {
-        throw new ApiError("PARSE_ERROR", `Invalid ISO string ${value}`);
+        throw new Error(`Invalid ISO string ${value}`);
       }
       return dateTime;
     },
     encode: (dateTime) => {
       const value = dateTime.toISO();
       if (value === null) {
-        throw new ApiError("PARSE_ERROR", "Invalid DateTime");
+        throw new Error("Invalid DateTime");
       }
       return value;
     },
