@@ -1,13 +1,19 @@
 import type { RouteConfig, RouteHandler, z } from "@hono/zod-openapi";
 import type { DateTime } from "luxon";
 import type {
+  assetListPayloadSchema,
   assetListResponseSchema,
   createSessionParamsSchema,
+  mediaPayloadSchema,
 } from "./schema";
 
 export type CreateSessionParams = z.infer<typeof createSessionParamsSchema>;
 
 export type AssetListResponse = z.infer<typeof assetListResponseSchema>;
+
+export type AssetListPayload = z.infer<typeof assetListPayloadSchema>;
+
+export type MediaPayload = z.infer<typeof mediaPayloadSchema>;
 
 export type Asset =
   | {
@@ -37,17 +43,6 @@ export type Session = {
   interstitials: Interstitial[];
   vmap?: string;
 };
-
-export interface MediaSig {
-  type: "video" | "audio" | "subtitles";
-  path: string;
-}
-
-export interface AssetListSig {
-  dateTime: DateTime;
-}
-
-export type ValueOf<T> = T[keyof T];
 
 // biome-ignore lint/suspicious/noExplicitAny: Intended
 export type IntendedAny = any;

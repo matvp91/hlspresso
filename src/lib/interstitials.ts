@@ -1,6 +1,6 @@
 import type { MediaPlaylist } from "../parser/hls";
-import type { AssetListSig, Session } from "../types";
-import { formatSig } from "./signature";
+import { assetListPayloadSchema } from "../schema";
+import type { Session } from "../types";
 
 type AddInterstitialDateRangesParams = {
   session: Session;
@@ -18,15 +18,13 @@ export function addInterstitialDateRanges({
   isLive,
 }: AddInterstitialDateRangesParams) {
   for (const interstitial of session.interstitials) {
-    const assetListUrl = `/out/${session.id}/asset-list.json?sig=${formatSig<AssetListSig>(
-      {
-        dateTime: interstitial.dateTime,
-      },
-    )}`;
+    const payload = assetListPayloadSchema.encode({
+      dateTime: interstitial.dateTime,
+    });
 
     const clientAttributes: Record<string, number | string> = {
       RESTRICT: "SKIP,JUMP",
-      "ASSET-LIST": assetListUrl,
+      "ASSET-LIST": `/out/${session.id}/${payload}/asset-list.json`,
       "CONTENT-MAY-VARY": "YES",
       "TIMELINE-STYLE": "HIGHLIGHT",
     };

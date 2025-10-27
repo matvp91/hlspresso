@@ -25,14 +25,12 @@ export const main: AppRouteHandler<MainRoute> = async (c) => {
 export const media: AppRouteHandler<MediaRoute> = async (c) => {
   const bindings = await getBindings(c);
 
-  const { sessionId } = c.req.valid("param");
+  const { sessionId, payload } = c.req.valid("param");
   const session = await getSession(bindings, sessionId);
-
-  const { sig } = c.req.valid("query");
 
   const text = await processMediaPlaylist({
     session,
-    sig,
+    payload,
   });
 
   return c.text(text, 200, {
@@ -43,17 +41,15 @@ export const media: AppRouteHandler<MediaRoute> = async (c) => {
 export const assetList: AppRouteHandler<AssetListRoute> = async (c) => {
   const bindings = await getBindings(c);
 
-  const { sessionId } = c.req.valid("param");
+  const { sessionId, payload } = c.req.valid("param");
   const session = await getSession(bindings, sessionId);
-
-  const { sig } = c.req.valid("query");
 
   const data: AssetListResponse = {
     ASSETS: [],
   };
 
   const interstitial = session.interstitials.find((interstitial) =>
-    interstitial.dateTime.equals(sig.dateTime),
+    interstitial.dateTime.equals(payload.dateTime),
   );
   if (interstitial) {
     for (const asset of interstitial.assets) {

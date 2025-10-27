@@ -8,13 +8,13 @@ import {
 } from "../parser/hls";
 import type { MainPlaylist, MediaPlaylist } from "../parser/hls";
 import { getVMAP } from "../parser/vmap";
-import type { Interstitial, MediaSig, Session } from "../types";
+import { mediaPayloadSchema } from "../schema";
+import type { Interstitial, MediaPayload, Session } from "../types";
 import type { Bindings } from "../utils/bindings";
 import { replaceUrlParams, resolveUrl } from "../utils/url";
 import { addInterstitialDateRanges } from "./interstitials";
 import { toDateTime, updateSession } from "./session";
 import { pushInterstitial } from "./session";
-import { formatSig } from "./signature";
 
 type ProcessMainPlaylistParams = {
   bindings: Bindings;
@@ -38,16 +38,16 @@ export async function processMainPlaylist({
 
 type ProcessMediaPlaylistParams = {
   session: Session;
-  sig: MediaSig;
+  payload: MediaPayload;
 };
 
 export async function processMediaPlaylist({
   session,
-  sig,
+  payload,
 }: ProcessMediaPlaylistParams) {
   const origUrl = resolveUrl({
     baseUrl: session.url,
-    path: sig.path,
+    path: payload.path,
   });
 
   const playlistText = await ky.get(origUrl).text();
@@ -61,7 +61,7 @@ export async function processMediaPlaylist({
 
   rewriteSegmentUrlsInMedia(playlist, origUrl);
 
-  if (sig.type === "video") {
+  if (payload.type === "VIDEO") {
     addInterstitialDateRanges({
       session,
       playlist,
@@ -138,23 +138,23 @@ export async function getDuration(mainUrl: string) {
 function rewriteMediaUrlsInMain(playlist: MainPlaylist) {
   let index = 0;
   for (const variant of playlist.variants) {
-    variant.uri = `media/video_${++index}.m3u8?sig=${formatSig<MediaSig>({
-      type: "video",
+    variant.uri = `media/${mediaPayloadSchema.encode({
+      type: "VIDEO",
       path: variant.uri,
-    })}`;
+    })}/video_${++index}.m3u8`;
   }
   for (const media of playlist.medias) {
     if (media.type === "AUDIO") {
-      media.uri = `media/audio_${++index}.m3u8?sig=${formatSig<MediaSig>({
-        type: "audio",
+      media.uri = `media/${mediaPayloadSchema.encode({
+        type: "AUDIO",
         path: media.uri,
-      })}`;
+      })}/video_${++index}.m3u8`;
     }
     if (media.type === "SUBTITLES") {
-      media.uri = `media/subtitles_${++index}.m3u8?sig=${formatSig<MediaSig>({
-        type: "subtitles",
+      media.uri = `media/${mediaPayloadSchema.encode({
+        type: "SUBTITLES",
         path: media.uri,
-      })}`;
+      })}/video_${++index}.m3u8`;
     }
   }
 }

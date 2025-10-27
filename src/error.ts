@@ -1,10 +1,4 @@
-import type { ValueOf } from "./types";
-
-export const ApiErrorCode = {
-  SESSION_NOT_FOUND: "SESSION_NOT_FOUND",
-} as const;
-
-export type ApiErrorCode = ValueOf<typeof ApiErrorCode>;
+export type ApiErrorCode = "SESSION_NOT_FOUND" | "PARSE_ERROR";
 
 export class ApiError extends Error {
   constructor(

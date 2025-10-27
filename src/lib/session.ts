@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import { DateTime } from "luxon";
-import { ApiError, ApiErrorCode } from "../error";
+import { ApiError } from "../error";
 import type {
   Asset,
   CreateSessionParams,
@@ -67,7 +67,10 @@ export async function createSession(
 export async function getSession(bindings: Bindings, id: string) {
   const data = await bindings.kv.get(`session:${id}`);
   if (!data) {
-    throw new ApiError(ApiErrorCode.SESSION_NOT_FOUND);
+    throw new ApiError(
+      "SESSION_NOT_FOUND",
+      `Session with id ${id} cannot be found`,
+    );
   }
   return SuperJSON.parse<Session>(data);
 }
