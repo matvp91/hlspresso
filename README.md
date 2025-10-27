@@ -1,8 +1,15 @@
 # HLSpresso
 
-A lightweight HLS proxy that can insert interstitials on the fly. Supports live streams with CUE-IN and CUE-OUT markers and VOD with precise insertion points. Provides VMAP and VAST support, playlist filtering and modification, and can run at the edge or on serverless platforms like Cloudflare Workers and AWS Lambda.
+A lightweight HLS proxy that can insert HLS interstitials on the fly.
 
 We host an example at https://hlspresso.green-mode-c2f7.workers.dev/v1/docs, feel free to toy with it.
+
+- VOD with precise insertion points, manual or VMAP.
+- VAST (up to 6) support.
+- Playlist filtering and modification, on the fly.
+- Can run at the edge or on serverless platforms like Cloudflare Workers and AWS Lambda.
+- Live streams with CUE-IN and CUE-OUT markers for ad replacement.
+- Ad Creative Signaling (SVTA2053-2) spec.
 
 Create a personalized HLS playlist for each playback session by sending a `POST` request to `/api/v1/sessions`.
 
@@ -26,6 +33,8 @@ Create a personalized HLS playlist for each playback session by sending a `POST`
   ]
 }
 ```
+
+Alternatively, you could derive the interstitials from a VMAP response rather than defining each one manually.
 
 ```js
 {
