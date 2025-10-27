@@ -66,9 +66,24 @@ const jsonCodec = <T extends z.core.$ZodType>(schema: T) =>
 
 export const filterSchema = z
   .object({
-    height: z.string().optional(),
-    width: z.string().optional(),
-    unstable_disableForcedText: z.boolean().optional(),
+    height: z
+      .string()
+      .optional()
+      .openapi({
+        description: "Filter rendition height.",
+        examples: [">= 720", "< 1080"],
+      }),
+    width: z
+      .string()
+      .optional()
+      .openapi({
+        description: "Filter rendition width.",
+        examples: [">= 1920", "< 480"],
+      }),
+    unstable_disableForcedText: z.boolean().optional().openapi({
+      description:
+        "Removes DEFAULT,AUTOSELECT attributes from all text tracks.",
+    }),
   })
   .openapi("Filter");
 
