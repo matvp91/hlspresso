@@ -66,12 +66,23 @@ export function createAdCreativeSignaling(
   ad: Ad,
   start: number,
 ): Extract<SignalingBaseEnvelope, { type: "slot" }> {
-  const tracking = Object.entries(ad.tracking).map(([type, urls]) => {
-    return {
-      type,
-      urls,
-    } as unknown as SignalingTrackingEvent;
-  });
+  const tracking: SignalingTrackingEvent[] = [];
+  if (ad.tracking.start) {
+    tracking.push({ type: "start", urls: ad.tracking.start });
+  }
+  if (ad.tracking.firstQuartile) {
+    tracking.push({ type: "firstQuartile", urls: ad.tracking.firstQuartile });
+  }
+  if (ad.tracking.midpoint) {
+    tracking.push({ type: "midpoint", urls: ad.tracking.midpoint });
+  }
+  if (ad.tracking.thirdQuartile) {
+    tracking.push({ type: "thirdQuartile", urls: ad.tracking.thirdQuartile });
+  }
+  if (ad.tracking.complete) {
+    tracking.push({ type: "complete", urls: ad.tracking.complete });
+  }
+  // TODO: The rest of the tracking events...
   return {
     version: 2,
     type: "slot",

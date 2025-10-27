@@ -1,6 +1,5 @@
 import { VASTClient } from "extern/vast-client";
-import type { VastAd, VastCreativeLinear } from "extern/vast-client";
-import type { SignalingEventType } from "../ad-signaling";
+import type { VastCreativeLinear } from "extern/vast-client";
 import type { Asset } from "../types";
 import { replaceUrlParams } from "../utils/url";
 
@@ -8,8 +7,28 @@ export type Ad = {
   id: string;
   url: string;
   duration: number;
-  tracking: Partial<Record<SignalingEventType, string[]>>;
+  tracking: AdTracking;
 };
+
+export type AdTracking = Partial<
+  Record<
+    | "complete"
+    | "error"
+    | "firstQuartile"
+    | "loaded"
+    | "midpoint"
+    | "mute"
+    | "pause"
+    | "collapse"
+    | "expand"
+    | "resume"
+    | "skip"
+    | "start"
+    | "thirdQuartile"
+    | "unmute",
+    string[]
+  >
+>;
 
 export async function resolveVASTAsset(
   vastAsset: Extract<Asset, { type: "VAST" }>,
@@ -36,33 +55,25 @@ export async function resolveVASTAsset(
         id: creative.adId,
         url: mediaFile.fileURL,
         duration: creative.duration,
-        tracking: mapTrackingEvents(ad, creative),
+        tracking: {
+          complete: creative.trackingEvents.complete,
+          error: creative.trackingEvents.error,
+          firstQuartile: creative.trackingEvents.firstQuartile,
+          loaded: creative.trackingEvents.loaded,
+          midpoint: creative.trackingEvents.midpoint,
+          mute: creative.trackingEvents.mute,
+          pause: creative.trackingEvents.pause,
+          collapse: creative.trackingEvents.collapse,
+          expand: creative.trackingEvents.expand,
+          resume: creative.trackingEvents.resume,
+          skip: creative.trackingEvents.skip,
+          start: creative.trackingEvents.start,
+          thirdQuartile: creative.trackingEvents.thirdQuartile,
+          unmute: creative.trackingEvents.unmute,
+        },
       });
     }
   }
 
   return ads;
-}
-
-function mapTrackingEvents(ad: VastAd, creative: VastCreativeLinear) {
-  const e = creative.trackingEvents;
-  const result: Partial<Record<SignalingEventType, string[]>> = {
-    impression: ad.impressionURLTemplates.map((template) => template.url),
-    clickTracking: e.tracking ?? [],
-    complete: e.complete ?? [],
-    error: e.error ?? [],
-    firstQuartile: e.firstQuartile ?? [],
-    loaded: e.loaded ?? [],
-    midpoint: e.midpoint ?? [],
-    mute: e.mute ?? [],
-    pause: e.pause ?? [],
-    playerCollapse: e.collapse ?? [],
-    playerExpand: e.expand ?? [],
-    resume: e.resume ?? [],
-    skip: e.skip ?? [],
-    start: e.start ?? [],
-    thirdQuartile: e.thirdQuartile ?? [],
-    unmute: e.unmute ?? [],
-  };
-  return result;
 }
