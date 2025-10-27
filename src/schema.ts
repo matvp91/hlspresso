@@ -120,7 +120,7 @@ export const createSessionParamsSchema = z.strictObject({
     .openapi({
       description: "Add interstitials based on the ads defined in the VMAP.",
     }),
-  expiry: z.number().default(60 * 60 * 48),
+  expiry: z.union([z.number(), z.literal(false)]).default(60 * 60 * 48),
 });
 
 export const assetListResponseSchema = z.object({

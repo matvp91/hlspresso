@@ -21,7 +21,7 @@ export async function createSession(
   const session: Session = {
     id,
     startTime,
-    expiry: params.expiry,
+    expiry: params.expiry === false ? 60 * 60 * 24 * 365 * 5 : params.expiry,
     url: params.url,
     interstitials: [],
     vmap: params.vmap?.url,
