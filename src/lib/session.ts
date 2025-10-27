@@ -15,7 +15,12 @@ export async function createSession(
   bindings: Bindings,
   params: CreateSessionParams,
 ) {
-  const id = crypto.randomUUID();
+  let id = crypto.randomUUID();
+  if (params.group) {
+    // If we have a group, prepend it.
+    id = `${params.group}:${id}`;
+  }
+
   const startTime = DateTime.now();
 
   const session: Session = {

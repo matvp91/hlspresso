@@ -11,7 +11,7 @@ export const main = createRoute({
   path: "/out/:sessionId/main.m3u8",
   request: {
     params: z.object({
-      sessionId: z.uuid(),
+      sessionId: z.string(),
     }),
   },
   responses: {
@@ -32,7 +32,7 @@ export const media = createRoute({
   path: "/out/:sessionId/media/:payload/*",
   request: {
     params: z.object({
-      sessionId: z.uuid(),
+      sessionId: z.string(),
       payload: mediaPayloadSchema,
     }),
   },

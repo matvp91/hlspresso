@@ -144,7 +144,16 @@ export const createSessionParamsSchema = z.strictObject({
     .openapi({
       description: "Add interstitials based on the ads defined in the VMAP.",
     }),
-  expiry: z.union([z.number(), z.literal(false)]).default(60 * 60 * 48),
+  expiry: z
+    .union([z.number(), z.literal(false)])
+    .default(60 * 60 * 48)
+    .openapi({
+      description: "Amount of seconds until the session is discarded.",
+    }),
+  group: z.string().optional().openapi({
+    description:
+      "Prepend the session id with a group, mainly for logging or debugging purposes.",
+  }),
 });
 
 export const assetListResponseSchema = z.object({
