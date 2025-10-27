@@ -3,9 +3,12 @@ compatibility_flags = ["nodejs_compat"]
 compatibility_date = "2024-09-23"
 send_metrics = false
 
-[vars]
-BASE_URL = "http://localhost:8787"
-
 [[kv_namespaces]]
-binding = "kv"
-id = "18ccfb81f250464ead5689f1e2b36432"
+binding = "hlspresso"
+id = "35a88731b6de4bcfb56085ab305143d5"
+
+[observability]
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+invocation_logs = true

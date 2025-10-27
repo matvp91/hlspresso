@@ -10,6 +10,8 @@ export interface Kv {
   get(key: string): Promise<string | null>;
 }
 
+const WORKERD_KV_BINDING = "hlspresso";
+
 function createWorkerdKv(kv: KVNamespace): Kv {
   return {
     async set(key, value, ttl) {
@@ -69,7 +71,7 @@ let kv: Kv | null = null;
 export async function createKv(
   c: Context<{
     Bindings: {
-      kv?: KVNamespace;
+      [WORKERD_KV_BINDING]?: KVNamespace;
     };
   }>,
   env: Env,
@@ -81,8 +83,8 @@ export async function createKv(
   const runtimeKey = getRuntimeKey();
 
   if (runtimeKey === "workerd") {
-    assert(c.env.kv, "Missing workerd kv");
-    kv = createWorkerdKv(c.env.kv);
+    assert(c.env[WORKERD_KV_BINDING], "Missing workerd kv");
+    kv = createWorkerdKv(c.env[WORKERD_KV_BINDING]);
   }
   if (env.REDIS_URL) {
     kv = await createRedisKv(env.REDIS_URL);

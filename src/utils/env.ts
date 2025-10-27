@@ -4,7 +4,7 @@ import { z } from "zod";
 
 const envSchema = z.object({
   REDIS_URL: z.string().optional(),
-  BASE_URL: z.string(),
+  BASE_URL: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

@@ -3,7 +3,7 @@
   "scripts": {
     "dev": "concurrently \"esbuild src/runtime/node.ts --bundle --outfile=dist/node.js --sourcemap --platform=node --format=cjs --watch\" \"node --inspect --env-file=.node-env --watch dist/node.js\"",
     "dev:wrangler": "wrangler dev src/runtime/cloudflare.ts",
-    "deploy:wrangler": "wrangler deploy --minify src/runtime/clouflare.ts"
+    "deploy:wrangler": "wrangler deploy --minify src/runtime/cloudflare.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
