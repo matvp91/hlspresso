@@ -59,10 +59,7 @@ export async function createSession(
       });
     }
 
-    session.interstitials = mergeInterstitials(
-      session.interstitials,
-      interstitials,
-    );
+    mergeInterstitials(session.interstitials, interstitials);
   }
 
   const json = sessionSchema.encode(session);

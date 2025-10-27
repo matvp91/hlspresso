@@ -108,10 +108,7 @@ async function updateSessionOnMainPlaylist(
       });
     }
 
-    session.interstitials = mergeInterstitials(
-      session.interstitials,
-      interstitials,
-    );
+    mergeInterstitials(session.interstitials, interstitials);
 
     storeSession = true;
   }
