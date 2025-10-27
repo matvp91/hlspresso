@@ -10,6 +10,7 @@ export const create: AppRouteHandler<CreateRoute> = async (c) => {
   const session = await createSession(bindings, params);
 
   return c.json({
+    id: session.id,
     url: `${bindings.env.BASE_URL}/out/${session.id}/main.m3u8`,
   });
 };
