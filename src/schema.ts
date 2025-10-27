@@ -75,11 +75,11 @@ export const createSessionParamsSchema = z.object({
           .array(
             z.discriminatedUnion("type", [
               z.object({
-                type: z.literal("static"),
+                type: z.literal("STATIC"),
                 url: z.string(),
               }),
               z.object({
-                type: z.literal("vast"),
+                type: z.literal("VAST"),
                 url: z.string(),
               }),
             ]),

@@ -34,7 +34,7 @@ export async function createSession(
       const assets: Asset[] = value.assets
         ? await Promise.all(
             value.assets.map(async (asset) => {
-              if (asset.type === "static") {
+              if (asset.type === "STATIC") {
                 const duration = await getDuration(asset.url);
                 return {
                   type: "STATIC",
@@ -42,7 +42,7 @@ export async function createSession(
                   duration,
                 };
               }
-              if (asset.type === "vast") {
+              if (asset.type === "VAST") {
                 return {
                   type: "VAST",
                   url: asset.url,
