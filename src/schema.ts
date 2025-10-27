@@ -203,3 +203,5 @@ export const sessionSchema = jsonCodec(
     filter: filterSchema.optional(),
   }),
 );
+
+export const defaultUrlParamsSchema = z.enum(["random"]).openapi("URLParams");

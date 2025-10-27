@@ -46,3 +46,19 @@ app.get("/api/v1/doc", (c) => {
 });
 
 app.get("/v1/docs", Scalar({ url: "/api/v1/doc" }));
+
+app.openAPIRegistry.registerComponent("schemas", "URLParams", {
+  type: "object",
+  description:
+    "Parameters that will be replaced when providing a VAST or VMAP url.",
+  properties: {
+    "{random}": {
+      description: "Replace with a random number.",
+      example: "https://ad-server.com/vast.xml?id={random}",
+    },
+    "{userAgent}": {
+      description: "Replace with the user agent string of the end user.",
+      example: "https://ad-server.com/vmap.xml?ua={userAgent}",
+    },
+  },
+});
