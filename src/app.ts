@@ -27,7 +27,12 @@ app.get("/api/v1/doc", (c) => {
     openapi: "3.0.0",
     info: {
       version: "1.0.0",
-      title: "hlspresso",
+      title: "HLSpresso",
+      description:
+        "A lightweight HLS proxy that can insert interstitials on the fly. Supports live streams with CUE-IN and CUE-OUT markers and VOD with precise insertion points. Provides VMAP and VAST support, playlist filtering and modification, and can run at the edge or on serverless platforms like Cloudflare Workers and AWS Lambda.",
+      license: {
+        name: "MIT",
+      },
     },
     tags: [
       {
