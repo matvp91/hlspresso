@@ -64,14 +64,14 @@ const jsonCodec = <T extends z.core.$ZodType>(schema: T) =>
     encode: (value) => JSON.stringify(value),
   });
 
-export const createSessionParamsSchema = z.object({
+export const createSessionParamsSchema = z.strictObject({
   url: z.string().openapi({
     description: "The HLS main playlist source.",
     examples: ["https://foo.bar/main.m3u8"],
   }),
   interstitials: z
     .array(
-      z.object({
+      z.strictObject({
         time: z.number().openapi({
           description: "Relative to the media time",
         }),
@@ -83,7 +83,7 @@ export const createSessionParamsSchema = z.object({
           .array(
             z.discriminatedUnion("type", [
               z
-                .object({
+                .strictObject({
                   type: z.literal("STATIC"),
                   url: z.string(),
                 })
@@ -92,7 +92,7 @@ export const createSessionParamsSchema = z.object({
                     "A static URL asset, must point to an HLS main playlist source.",
                 }),
               z
-                .object({
+                .strictObject({
                   type: z.literal("VAST"),
                   url: z.string(),
                 })
@@ -113,7 +113,7 @@ export const createSessionParamsSchema = z.object({
       description: "Manual interstitial insertion.",
     }),
   vmap: z
-    .object({
+    .strictObject({
       url: z.string(),
     })
     .optional()
