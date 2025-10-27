@@ -14,6 +14,7 @@ export type MainPlaylist = {
   variants: Variant[];
   medias: Media[];
   defines: HLSDefine[];
+  comments?: string[];
 };
 
 export type Variant = {

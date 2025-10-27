@@ -7,6 +7,12 @@ export function stringifyMainPlaylist(playlist: MainPlaylist) {
 
   lines.push("#EXTM3U", "#EXT-X-VERSION:8");
 
+  if (playlist.comments) {
+    for (const comment of playlist.comments) {
+      lines.push(`## ${comment}`);
+    }
+  }
+
   if (playlist.independentSegments) {
     lines.push("#EXT-X-INDEPENDENT-SEGMENTS");
   }

@@ -11,10 +11,9 @@ import { getVMAP } from "../parser/vmap";
 import { mediaPayloadSchema } from "../schema";
 import type { Interstitial, MediaPayload, Session } from "../types";
 import type { Bindings } from "../utils/bindings";
-import { replaceUrlParams, resolveUrl } from "../utils/url";
+import { getUrlCommonPrefix, replaceUrlParams, resolveUrl } from "../utils/url";
 import { addInterstitialDateRanges } from "./interstitials";
-import { toDateTime, updateSession } from "./session";
-import { mergeInterstitials } from "./session";
+import { mergeInterstitials, toDateTime, updateSession } from "./session";
 
 type ProcessMainPlaylistParams = {
   bindings: Bindings;
@@ -30,6 +29,10 @@ export async function processMainPlaylist({
 
   const playlistText = await ky.get(url).text();
   const playlist = parseMainPlaylist(playlistText);
+
+  playlist.comments = [
+    `Generated with hlspresso, at ${session.startTime.toISO()}`,
+  ];
 
   rewriteMediaUrlsInMain(playlist);
 
@@ -165,16 +168,41 @@ function rewriteMediaUrlsInMain(playlist: MainPlaylist) {
 }
 
 function rewriteSegmentUrlsInMedia(playlist: MediaPlaylist, origUrl: string) {
+  const lookupMap = new Map<{ uri: string }, string>();
+
+  // Collect all rewritable parts. These need to point
+  // to the original URL.
   for (const segment of playlist.segments) {
-    segment.uri = resolveUrl({
+    const origSegmentUrl = resolveUrl({
       baseUrl: origUrl,
       path: segment.uri,
     });
+    lookupMap.set(segment, origSegmentUrl);
     if (segment.map) {
-      segment.map.uri = resolveUrl({
+      const origMapUrl = resolveUrl({
         baseUrl: origUrl,
         path: segment.map.uri,
       });
+      lookupMap.set(segment.map, origMapUrl);
+    }
+  }
+
+  const baseUrl = getUrlCommonPrefix(Array.from(lookupMap.values()));
+
+  if (baseUrl) {
+    playlist.defines.push({
+      name: "ORIG_BASE_URL",
+      value: baseUrl,
+    });
+  }
+
+  for (const [item, url] of lookupMap.entries()) {
+    if (baseUrl) {
+      // When we have a baseUrl, we can subtract that as we have it defined
+      // in an X-DEFINE.
+      item.uri = `{$ORIG_BASE_URL}${url.substring(baseUrl.length)}`;
+    } else {
+      item.uri = url;
     }
   }
 }
