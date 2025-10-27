@@ -1,12 +1,20 @@
 import { VASTClient } from "extern/vast-client";
-import type { VastCreativeLinear } from "extern/vast-client";
+import type { VastAd, VastCreativeLinear } from "extern/vast-client";
+import type { SignalingEventType } from "../ad-signaling";
 import type { Asset } from "../types";
 import { replaceUrlParams } from "../utils/url";
 
-export async function resolveFromVASTAsset(
+export type Ad = {
+  id: string;
+  url: string;
+  duration: number;
+  tracking: Partial<Record<SignalingEventType, string[]>>;
+};
+
+export async function resolveVASTAsset(
   vastAsset: Extract<Asset, { type: "VAST" }>,
 ) {
-  const assets: Extract<Asset, { type: "STATIC" }>[] = [];
+  const ads: Ad[] = [];
 
   if (vastAsset.url) {
     const vastClient = new VASTClient();
@@ -15,7 +23,7 @@ export async function resolveFromVASTAsset(
       const creative = ad.creatives.find(
         (creative) => creative.type === "linear",
       ) as VastCreativeLinear | undefined;
-      if (!creative) {
+      if (!creative?.adId) {
         continue;
       }
       const mediaFile = creative.mediaFiles.find(
@@ -24,13 +32,37 @@ export async function resolveFromVASTAsset(
       if (!mediaFile?.fileURL) {
         continue;
       }
-      assets.push({
-        type: "STATIC",
+      ads.push({
+        id: creative.adId,
         url: mediaFile.fileURL,
         duration: creative.duration,
+        tracking: mapTrackingEvents(ad, creative),
       });
     }
   }
 
-  return assets;
+  return ads;
+}
+
+function mapTrackingEvents(ad: VastAd, creative: VastCreativeLinear) {
+  const e = creative.trackingEvents;
+  const result: Partial<Record<SignalingEventType, string[]>> = {
+    impression: ad.impressionURLTemplates.map((template) => template.url),
+    clickTracking: e.tracking ?? [],
+    complete: e.complete ?? [],
+    error: e.error ?? [],
+    firstQuartile: e.firstQuartile ?? [],
+    loaded: e.loaded ?? [],
+    midpoint: e.midpoint ?? [],
+    mute: e.mute ?? [],
+    pause: e.pause ?? [],
+    playerCollapse: e.collapse ?? [],
+    playerExpand: e.expand ?? [],
+    resume: e.resume ?? [],
+    skip: e.skip ?? [],
+    start: e.start ?? [],
+    thirdQuartile: e.thirdQuartile ?? [],
+    unmute: e.unmute ?? [],
+  };
+  return result;
 }

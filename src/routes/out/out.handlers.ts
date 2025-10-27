@@ -1,7 +1,8 @@
+import { createAdCreativeSignaling } from "src/ad-signaling";
 import type { AppRouteHandler } from "..";
 import { processMainPlaylist, processMediaPlaylist } from "../..//lib/playlist";
 import { getSession } from "../../lib/session";
-import { resolveFromVASTAsset } from "../../lib/vast";
+import { resolveVASTAsset } from "../../lib/vast";
 import type { AssetListResponse } from "../../types";
 import { getBindings } from "../../utils/bindings";
 import type { AssetListRoute, MainRoute, MediaRoute } from "./out.routes";
@@ -52,20 +53,25 @@ export const assetList: AppRouteHandler<AssetListRoute> = async (c) => {
     interstitial.dateTime.equals(payload.dateTime),
   );
   if (interstitial) {
+    let totalDuration = 0;
     for (const asset of interstitial.assets) {
       if (asset.type === "STATIC") {
         data.ASSETS.push({
           URI: asset.url,
           DURATION: asset.duration,
         });
+        totalDuration += asset.duration;
       }
       if (asset.type === "VAST") {
-        const vastAssets = await resolveFromVASTAsset(asset);
-        for (const vastAsset of vastAssets) {
+        const ads = await resolveVASTAsset(asset);
+        for (const ad of ads) {
+          const adSignaling = createAdCreativeSignaling(ad, totalDuration);
           data.ASSETS.push({
-            URI: vastAsset.url,
-            DURATION: vastAsset.duration,
+            URI: ad.url,
+            DURATION: ad.duration,
+            "X-AD-CREATIVE-SIGNALING": adSignaling,
           });
+          totalDuration += ad.duration;
         }
       }
     }

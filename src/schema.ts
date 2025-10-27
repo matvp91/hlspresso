@@ -128,6 +128,7 @@ export const assetListResponseSchema = z.object({
     z.object({
       URI: z.string(),
       DURATION: z.number(),
+      "X-AD-CREATIVE-SIGNALING": z.unknown().optional(),
     }),
   ),
 });
