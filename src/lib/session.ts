@@ -25,6 +25,7 @@ export async function createSession(
     url: params.url,
     interstitials: [],
     vmap: params.vmap?.url,
+    filter: params.filter,
   };
 
   if (params.interstitials) {
@@ -42,13 +43,7 @@ export async function createSession(
                   duration,
                 };
               }
-              if (asset.type === "VAST") {
-                return {
-                  type: "VAST",
-                  url: asset.url,
-                };
-              }
-              throw new Error("Unmapped asset type.");
+              return asset;
             }),
           )
         : [];

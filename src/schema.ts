@@ -64,11 +64,18 @@ const jsonCodec = <T extends z.core.$ZodType>(schema: T) =>
     encode: (value) => JSON.stringify(value),
   });
 
+export const filterSchema = z.object({
+  height: z.string().optional(),
+  width: z.string().optional(),
+  unstable_disableForcedText: z.boolean().optional(),
+});
+
 export const createSessionParamsSchema = z.strictObject({
   url: z.string().openapi({
     description: "The HLS main playlist source.",
     examples: ["https://foo.bar/main.m3u8"],
   }),
+  filter: filterSchema.optional(),
   interstitials: z
     .array(
       z.strictObject({
@@ -176,5 +183,6 @@ export const sessionSchema = jsonCodec(
     url: z.string(),
     interstitials: z.array(interstitialSchema),
     vmap: z.string().optional(),
+    filter: filterSchema.optional(),
   }),
 );

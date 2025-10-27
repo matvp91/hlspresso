@@ -4,6 +4,7 @@ import type {
   assetListResponseSchema,
   assetSchema,
   createSessionParamsSchema,
+  filterSchema,
   interstitialSchema,
   mediaPayloadSchema,
   sessionSchema,
@@ -22,6 +23,8 @@ export type Session = z.infer<typeof sessionSchema>;
 export type Interstitial = z.infer<typeof interstitialSchema>;
 
 export type Asset = z.infer<typeof assetSchema>;
+
+export type Filter = z.infer<typeof filterSchema>;
 
 // biome-ignore lint/suspicious/noExplicitAny: Intended
 export type IntendedAny = any;

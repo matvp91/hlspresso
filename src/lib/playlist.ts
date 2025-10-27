@@ -1,5 +1,6 @@
 import ky from "ky";
 import { assert } from "../assert";
+import { filterMainPlaylist } from "../filter";
 import {
   parseMainPlaylist,
   parseMediaPlaylist,
@@ -33,6 +34,10 @@ export async function processMainPlaylist({
   playlist.comments = [
     `Generated with hlspresso, at ${session.startTime.toISO()}`,
   ];
+
+  if (session.filter) {
+    filterMainPlaylist(playlist, session.filter);
+  }
 
   rewriteMediaUrlsInMain(playlist);
 
