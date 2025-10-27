@@ -4,6 +4,9 @@ import { createSessionParamsSchema } from "../../schema";
 export const create = createRoute({
   method: "post",
   path: "/api/v1/sessions",
+  operationId: "createSession",
+  tags: ["session"],
+  summary: "Create a session",
   request: {
     body: {
       required: true,
@@ -20,7 +23,12 @@ export const create = createRoute({
       content: {
         "application/json": {
           schema: z.object({
-            url: z.string(),
+            id: z.string().openapi({
+              description: "Session id.",
+            }),
+            url: z.string().openapi({
+              description: "The proxied URL to the main playlist.",
+            }),
           }),
         },
       },

@@ -1,3 +1,4 @@
+import { Scalar } from "@scalar/hono-api-reference";
 import { cors } from "hono/cors";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { handleApiError } from "./error";
@@ -21,13 +22,22 @@ for (const route of routes) {
   app.route("/", route);
 }
 
-app.get("/openapi", (c) => {
+app.get("/api/v1/doc", (c) => {
   const doc = app.getOpenAPIDocument({
     openapi: "3.0.0",
     info: {
       version: "1.0.0",
       title: "hlspresso",
     },
+    tags: [
+      {
+        name: "session",
+        description:
+          "Captures all your playback activity in a single session, including progress, interactions, and listening history, for a personalized experience.",
+      },
+    ],
   });
   return c.json(doc);
 });
+
+app.get("/v1/docs", Scalar({ url: "/api/v1/doc" }));
