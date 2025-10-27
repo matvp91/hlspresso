@@ -1,4 +1,4 @@
-import type { RouteConfig, RouteHandler, z } from "@hono/zod-openapi";
+import type { z } from "@hono/zod-openapi";
 import type {
   assetListPayloadSchema,
   assetListResponseSchema,
@@ -25,5 +25,3 @@ export type Asset = z.infer<typeof assetSchema>;
 
 // biome-ignore lint/suspicious/noExplicitAny: Intended
 export type IntendedAny = any;
-
-export type AppRouteHandler<R extends RouteConfig> = RouteHandler<R>;
