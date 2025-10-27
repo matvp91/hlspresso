@@ -65,34 +65,61 @@ const jsonCodec = <T extends z.core.$ZodType>(schema: T) =>
   });
 
 export const createSessionParamsSchema = z.object({
-  url: z.string(),
+  url: z.string().openapi({
+    description: "The HLS main playlist source.",
+    examples: ["https://foo.bar/main.m3u8"],
+  }),
   interstitials: z
     .array(
       z.object({
-        time: z.number(),
-        duration: z.number().optional(),
+        time: z.number().openapi({
+          description: "Relative to the media time",
+        }),
+        duration: z.number().optional().openapi({
+          description:
+            "For ad replacement purposes, the interstitial will be treated as a range instead of a point when provided.",
+        }),
         assets: z
           .array(
             z.discriminatedUnion("type", [
-              z.object({
-                type: z.literal("STATIC"),
-                url: z.string(),
-              }),
-              z.object({
-                type: z.literal("VAST"),
-                url: z.string(),
-              }),
+              z
+                .object({
+                  type: z.literal("STATIC"),
+                  url: z.string(),
+                })
+                .openapi({
+                  description:
+                    "A static URL asset, must point to an HLS main playlist source.",
+                }),
+              z
+                .object({
+                  type: z.literal("VAST"),
+                  url: z.string(),
+                })
+                .openapi({
+                  description:
+                    "A VAST url, will be resolved when the asset list is requested.",
+                }),
             ]),
           )
-          .optional(),
+          .optional()
+          .openapi({
+            description: "A set of assets for each interstitial.",
+          }),
       }),
     )
-    .optional(),
+    .optional()
+    .openapi({
+      description: "Manual interstitial insertion.",
+    }),
   vmap: z
     .object({
       url: z.string(),
     })
-    .optional(),
+    .optional()
+    .openapi({
+      description: "Add interstitials based on the ads defined in the VMAP.",
+    }),
   expiry: z.number().default(60 * 60 * 48),
 });
 
