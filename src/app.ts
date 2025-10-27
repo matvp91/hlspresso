@@ -10,6 +10,8 @@ export const app = createRouter();
 app.use(cors());
 
 app.onError((err, c) => {
+  // Log the error to console, we'd want to know what's going on.
+  console.error(err);
   const { error, status } = handleApiError(err);
   return c.json(error, status as ContentfulStatusCode);
 });
