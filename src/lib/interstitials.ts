@@ -5,7 +5,6 @@ import type { Session } from "../types";
 type AddInterstitialDateRangesParams = {
   session: Session;
   playlist: MediaPlaylist;
-
   isLive: boolean;
 };
 
