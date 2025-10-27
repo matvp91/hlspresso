@@ -10,25 +10,23 @@ export type Ad = {
   tracking: AdTracking;
 };
 
-export type AdTracking = Partial<
-  Record<
-    | "complete"
-    | "error"
-    | "firstQuartile"
-    | "loaded"
-    | "midpoint"
-    | "mute"
-    | "pause"
-    | "collapse"
-    | "expand"
-    | "resume"
-    | "skip"
-    | "start"
-    | "thirdQuartile"
-    | "unmute",
-    string[]
-  >
->;
+export type AdTracking = {
+  complete?: string[];
+  error?: string[];
+  firstQuartile?: string[];
+  loaded?: string[];
+  midpoint?: string[];
+  mute?: string[];
+  pause?: string[];
+  collapse?: string[];
+  expand?: string[];
+  resume?: string[];
+  skip?: string[];
+  start?: string[];
+  thirdQuartile?: string[];
+  unmute?: string[];
+  [key: string]: string[] | undefined;
+};
 
 export async function resolveVASTAsset(
   vastAsset: Extract<Asset, { type: "VAST" }>,
