@@ -64,11 +64,13 @@ const jsonCodec = <T extends z.core.$ZodType>(schema: T) =>
     encode: (value) => JSON.stringify(value),
   });
 
-export const filterSchema = z.object({
-  height: z.string().optional(),
-  width: z.string().optional(),
-  unstable_disableForcedText: z.boolean().optional(),
-});
+export const filterSchema = z
+  .object({
+    height: z.string().optional(),
+    width: z.string().optional(),
+    unstable_disableForcedText: z.boolean().optional(),
+  })
+  .openapi("Filter");
 
 export const createSessionParamsSchema = z.strictObject({
   url: z.string().openapi({
