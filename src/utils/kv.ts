@@ -6,14 +6,16 @@ import { assert } from "../assert";
 import type { Env } from "./env";
 
 export interface Kv {
-  set(key: string, value: string): Promise<void>;
+  set(key: string, value: string, ttl: number): Promise<void>;
   get(key: string): Promise<string | null>;
 }
 
 function createWorkerdKv(kv: KVNamespace): Kv {
   return {
-    async set(key, value) {
-      await kv.put(key, value);
+    async set(key, value, ttl) {
+      await kv.put(key, value, {
+        expirationTtl: ttl,
+      });
     },
     async get(key) {
       return await kv.get(key);
@@ -34,8 +36,13 @@ async function createRedisKv(url: string): Promise<Kv> {
   });
 
   return {
-    async set(key, value) {
-      await client.set(key, value);
+    async set(key, value, ttl) {
+      await client.set(key, value, {
+        expiration: {
+          type: "EX",
+          value: ttl,
+        },
+      });
     },
     async get(key) {
       return await client.get(key);

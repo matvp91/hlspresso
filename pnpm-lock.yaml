@@ -41,9 +41,6 @@ importers:
       rison:
         specifier: ^0.1.1
         version: 0.1.1
-      superjson:
-        specifier: ^2.2.3
-        version: 2.2.3
       symmetric-cipher.js:
         specifier: 2.1.0-0
         version: 2.1.0-0
@@ -366,10 +363,6 @@ packages:
     resolution: {integrity: sha512-RMr0FhtfXemyinomL4hrWcYJxmX6deFdCxpJzhDttxgO1+bcCnkk+9drydLVDmAMG7NE6aN/fl4F7ucU/90gAA==}
     engines: {node: '>=0.10.0'}
 
-  copy-anything@4.0.5:
-    resolution: {integrity: sha512-7Vv6asjS4gMOuILabD3l739tsaxFQmC+a7pLZm02zyvs8p977bL3zEgq3yDk5rn9B0PbYgIv++jmHcuUab4RhA==}
-    engines: {node: '>=18'}
-
   esbuild@0.25.11:
     resolution: {integrity: sha512-KohQwyzrKTQmhXDW1PjCv3Tyspn9n5GcY2RTDqeORIdIJY8yKIF7sTSopFmn/wpMPW4rdPXI0UE5LJLuq3bx0Q==}
     engines: {node: '>=18'}
@@ -381,10 +374,6 @@ packages:
   hono@4.10.2:
     resolution: {integrity: sha512-p6fyzl+mQo6uhESLxbF5WlBOAJMDh36PljwlKtP5V1v09NxlqGru3ShK+4wKhSuhuYf8qxMmrivHOa/M7q0sMg==}
     engines: {node: '>=16.9.0'}
-
-  is-what@5.5.0:
-    resolution: {integrity: sha512-oG7cgbmg5kLYae2N5IVd3jm2s+vldjxJzK1pcu9LfpGuQ93MQSzo0okvRna+7y5ifrD+20FE8FvjusyGaz14fw==}
-    engines: {node: '>=18'}
 
   ky@1.13.0:
     resolution: {integrity: sha512-JeNNGs44hVUp2XxO3FY9WV28ymG7LgO4wju4HL/dCq1A8eKDcFgVrdCn1ssn+3Q/5OQilv5aYsL0DMt5mmAV9w==}
@@ -406,10 +395,6 @@ packages:
 
   rison@0.1.1:
     resolution: {integrity: sha512-8C+/PKKTaAYE2quDtOUwny/eQpNn9YGby7T80wntbVWSGvw0aUT9M0YgLdLkUgIQzQwaB1ZTr80rwLVKyohHig==}
-
-  superjson@2.2.3:
-    resolution: {integrity: sha512-ay3d+LW/S6yppKoTz3Bq4mG0xrS5bFwfWEBmQfbC7lt5wmtk+Obq0TxVuA9eYRirBTQb1K3eEpBRHMQEo0WyVw==}
-    engines: {node: '>=16'}
 
   symmetric-cipher.js@2.1.0-0:
     resolution: {integrity: sha512-fCWkPBcAFKmNDk6g5H2t/TKiDw33d91A6cD2h0dT0Bx4g7ZHDQkWu9PQxRt0BxEAkwX9iF4WsVCeNsnH9lM88w==}
@@ -611,10 +596,6 @@ snapshots:
 
   cluster-key-slot@1.1.2: {}
 
-  copy-anything@4.0.5:
-    dependencies:
-      is-what: 5.5.0
-
   esbuild@0.25.11:
     optionalDependencies:
       '@esbuild/aix-ppc64': 0.25.11
@@ -650,8 +631,6 @@ snapshots:
 
   hono@4.10.2: {}
 
-  is-what@5.5.0: {}
-
   ky@1.13.0: {}
 
   luxon@3.7.2: {}
@@ -671,10 +650,6 @@ snapshots:
       '@redis/time-series': 5.9.0(@redis/client@5.9.0)
 
   rison@0.1.1: {}
-
-  superjson@2.2.3:
-    dependencies:
-      copy-anything: 4.0.5
 
   symmetric-cipher.js@2.1.0-0: {}
 

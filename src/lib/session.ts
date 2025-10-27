@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import { DateTime } from "luxon";
 import { ApiError } from "../error";
+import { sessionSchema } from "../schema";
 import type {
   Asset,
   CreateSessionParams,
@@ -8,7 +9,6 @@ import type {
   Session,
 } from "../types";
 import type { Bindings } from "../utils/bindings";
-import { SuperJSON } from "../utils/json";
 import { getDuration } from "./playlist";
 
 export async function createSession(
@@ -21,12 +21,15 @@ export async function createSession(
   const session: Session = {
     id,
     startTime,
+    expiry: params.expiry,
     url: params.url,
     interstitials: [],
     vmap: params.vmap?.url,
   };
 
   if (params.interstitials) {
+    const interstitials: Interstitial[] = [];
+
     for (const value of params.interstitials) {
       const assets: Asset[] = value.assets
         ? await Promise.all(
@@ -49,36 +52,48 @@ export async function createSession(
             }),
           )
         : [];
-      const interstitial: Interstitial = {
+      interstitials.push({
         dateTime: toDateTime(session.startTime, value.time),
         duration: value.duration,
         assets,
-      };
-      pushInterstitial(session.interstitials, interstitial);
+      });
     }
+
+    session.interstitials = mergeInterstitials(
+      session.interstitials,
+      interstitials,
+    );
   }
 
-  const json = SuperJSON.stringify(session);
-  await bindings.kv.set(`session:${id}`, json);
+  const json = sessionSchema.encode(session);
+  await bindings.kv.set(`session:${id}`, json, session.expiry);
 
   return session;
 }
 
 export async function getSession(bindings: Bindings, id: string) {
-  const data = await bindings.kv.get(`session:${id}`);
-  if (!data) {
+  const json = await bindings.kv.get(`session:${id}`);
+  if (!json) {
     throw new ApiError(
       "SESSION_NOT_FOUND",
       `Session with id ${id} cannot be found`,
     );
   }
-  return SuperJSON.parse<Session>(data);
+  const session = sessionSchema.parse(json);
+
+  // Check if the session is expired, we might still have it in kv.
+  const expiryDate = session.startTime.plus({ seconds: session.expiry });
+  if (DateTime.now() > expiryDate) {
+    throw new ApiError("SESSION_NOT_FOUND", "Session is expired");
+  }
+
+  return session;
 }
 
 export async function updateSession(bindings: Bindings, session: Session) {
   const { id } = session;
-  const value = SuperJSON.stringify(session);
-  await bindings.kv.set(`session:${id}`, value);
+  const json = sessionSchema.encode(session);
+  await bindings.kv.set(`session:${id}`, json, session.expiry);
 }
 
 export function toDateTime(startTime: DateTime, time: string | number) {
@@ -87,26 +102,29 @@ export function toDateTime(startTime: DateTime, time: string | number) {
     : startTime.plus({ seconds: time });
 }
 
-export function pushInterstitial(
-  interstitials: Interstitial[],
-  value: Interstitial,
+export function mergeInterstitials(
+  currentList: Interstitial[],
+  nextList: Interstitial[],
 ) {
-  const target = interstitials.find((interstitial) =>
-    interstitial.dateTime.equals(value.dateTime),
-  );
-  if (!target) {
-    // Create, if not exists.
-    interstitials.push(value);
-  } else {
-    // Merge.
-    if (value.assets) {
-      if (!target.assets) {
-        target.assets = [];
+  for (const next of nextList) {
+    const target = currentList.find((value) =>
+      value.dateTime.equals(next.dateTime),
+    );
+    if (!target) {
+      // Create, if not exists.
+      currentList.push(next);
+    } else {
+      // Merge.
+      if (next.assets) {
+        if (!target.assets) {
+          target.assets = [];
+        }
+        target.assets.push(...next.assets);
       }
-      target.assets.push(...value.assets);
-    }
-    if (value.duration) {
-      target.duration = value.duration;
+      if (next.duration) {
+        target.duration = next.duration;
+      }
     }
   }
+  return currentList;
 }

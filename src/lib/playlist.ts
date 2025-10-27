@@ -14,7 +14,7 @@ import type { Bindings } from "../utils/bindings";
 import { replaceUrlParams, resolveUrl } from "../utils/url";
 import { addInterstitialDateRanges } from "./interstitials";
 import { toDateTime, updateSession } from "./session";
-import { pushInterstitial } from "./session";
+import { mergeInterstitials } from "./session";
 
 type ProcessMainPlaylistParams = {
   bindings: Bindings;
@@ -87,13 +87,14 @@ async function updateSessionOnMainPlaylist(
     // Delete the VMAP url. We don't need to parse it again.
     session.vmap = undefined;
 
+    const interstitials: Interstitial[] = [];
     // Add each adBreak to the list of assets.
     for (const adBreak of vmap.adBreaks) {
       if (!adBreak.adTagUri) {
         // TODO: Support vastAdData too.
         continue;
       }
-      const interstitial: Interstitial = {
+      interstitials.push({
         dateTime: toDateTime(session.startTime, adBreak.time),
         assets: [
           {
@@ -101,9 +102,13 @@ async function updateSessionOnMainPlaylist(
             url: adBreak.adTagUri,
           },
         ],
-      };
-      pushInterstitial(session.interstitials, interstitial);
+      });
     }
+
+    session.interstitials = mergeInterstitials(
+      session.interstitials,
+      interstitials,
+    );
 
     storeSession = true;
   }

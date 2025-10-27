@@ -47,6 +47,24 @@ const risonCodec = <T extends z.core.$ZodType>(schema: T) =>
     encode: (value) => rison.encode(value),
   });
 
+const jsonCodec = <T extends z.core.$ZodType>(schema: T) =>
+  z.codec(z.string(), schema, {
+    decode: (jsonString, ctx) => {
+      try {
+        return JSON.parse(jsonString);
+      } catch (err) {
+        ctx.issues.push({
+          code: "invalid_format",
+          format: "json",
+          input: jsonString,
+          message: err.message,
+        });
+        return z.NEVER;
+      }
+    },
+    encode: (value) => JSON.stringify(value),
+  });
+
 export const createSessionParamsSchema = z.object({
   url: z.string(),
   interstitials: z
@@ -76,6 +94,7 @@ export const createSessionParamsSchema = z.object({
       url: z.string(),
     })
     .optional(),
+  expiry: z.number().default(60 * 60 * 48),
 });
 
 export const assetListResponseSchema = z.object({
@@ -97,5 +116,38 @@ export const mediaPayloadSchema = risonCodec(
   z.object({
     type: z.enum(["VIDEO", "AUDIO", "SUBTITLES"]),
     path: uriStringSchema,
+  }),
+);
+
+export const assetSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("STATIC"),
+    url: z.string(),
+    duration: z.number(),
+  }),
+  z.object({
+    type: z.literal("VAST"),
+    url: z.string(),
+  }),
+  z.object({
+    type: z.literal("VASTDATA"),
+    data: z.string(),
+  }),
+]);
+
+export const interstitialSchema = z.object({
+  dateTime: dateTimeSchema,
+  duration: z.number().optional(),
+  assets: z.array(assetSchema),
+});
+
+export const sessionSchema = jsonCodec(
+  z.object({
+    id: z.string(),
+    startTime: dateTimeSchema,
+    expiry: z.number(),
+    url: z.string(),
+    interstitials: z.array(interstitialSchema),
+    vmap: z.string().optional(),
   }),
 );
