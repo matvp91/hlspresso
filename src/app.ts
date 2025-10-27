@@ -36,9 +36,9 @@ app.get("/api/v1/doc", (c) => {
     },
     tags: [
       {
-        name: "session",
+        name: "Session",
         description:
-          "Captures all your playback activity in a single session, including progress, interactions, and listening history, for a personalized experience.",
+          "Captures all your playback activity in a single session, including progress, interactions, and viewing history, for a personalized experience.",
       },
     ],
   });

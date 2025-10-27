@@ -5,7 +5,7 @@ export const create = createRoute({
   method: "post",
   path: "/api/v1/sessions",
   operationId: "createSession",
-  tags: ["session"],
+  tags: ["Session"],
   summary: "Create a session",
   request: {
     body: {
