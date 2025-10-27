@@ -41,6 +41,10 @@ app.get("/api/v1/doc", (c) => {
           "Captures all your playback activity in a single session, including progress, interactions, and viewing history, for a personalized experience.",
       },
     ],
+    externalDocs: {
+      description: "GitHub",
+      url: "https://github.com/matvp91/hlspresso",
+    },
   });
   return c.json(doc);
 });
