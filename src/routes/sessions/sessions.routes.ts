@@ -3,7 +3,7 @@ import { createSessionParamsSchema } from "../../schema";
 
 export const create = createRoute({
   method: "post",
-  path: "/sessions",
+  path: "/api/v1/sessions",
   request: {
     body: {
       required: true,

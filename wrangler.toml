@@ -1,0 +1,11 @@
+name = "hlspresso"
+compatibility_flags = ["nodejs_compat"]
+compatibility_date = "2024-09-23"
+send_metrics = false
+
+[vars]
+BASE_URL = "http://localhost:8787"
+
+[[kv_namespaces]]
+binding = "kv"
+id = "18ccfb81f250464ead5689f1e2b36432"

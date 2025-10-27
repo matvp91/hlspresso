@@ -16,7 +16,7 @@ app.onError((err, c) => {
 
 const routes = [sessions, out];
 for (const route of routes) {
-  app.route("/api/v1", route);
+  app.route("/", route);
 }
 
 app.get("/openapi", (c) => {
