@@ -23,9 +23,9 @@ const dateTimeSchema = z.codec(
   },
 );
 
-const uriStringSchema = z.codec(z.string(), z.string(), {
-  decode: (enc) => decodeURIComponent(enc),
-  encode: (dec) => encodeURIComponent(dec),
+const base64StringSchema = z.codec(z.string(), z.string(), {
+  decode: (value) => Buffer.from(value, "base64url").toString("utf-8"),
+  encode: (value) => Buffer.from(value).toString("base64url"),
 });
 
 const risonCodec = <T extends z.core.$ZodType>(schema: T) =>
@@ -114,7 +114,7 @@ export const assetListPayloadSchema = risonCodec(
 export const mediaPayloadSchema = risonCodec(
   z.object({
     type: z.enum(["VIDEO", "AUDIO", "SUBTITLES"]),
-    path: uriStringSchema,
+    path: base64StringSchema,
   }),
 );
 
