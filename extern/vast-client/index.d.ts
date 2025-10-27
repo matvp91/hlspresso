@@ -7,12 +7,15 @@ export type VASTResponse = {
 };
 
 export type VASTAd = {
+  id: string;
   creatives: VASTCreative[];
+  impressionURLTemplates?: VASTURLValue[];
+  errorURLTemplates?: string[];
 };
 
 export type VASTCreative = {
-  adId: string | null;
   trackingEvents: Record<string, string[]>;
+  universalAdIds: string[];
 } & (VASTCreativeLinear | VASTCreativeNonLinear);
 
 export type VASTCreativeLinear = {
@@ -28,4 +31,8 @@ export type VASTCreativeNonLinear = {
 export type VASTMediaFile = {
   mimeType?: string;
   fileURL?: string;
+};
+export type VASTURLValue = {
+  id?: string;
+  url: string;
 };

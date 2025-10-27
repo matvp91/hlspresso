@@ -38,7 +38,7 @@ export async function resolveVASTAsset(
       const creative = ad.creatives.find(
         (creative) => creative.type === "linear",
       );
-      if (!creative?.adId) {
+      if (!creative) {
         continue;
       }
       const mediaFile = creative.mediaFiles.find(
@@ -48,10 +48,18 @@ export async function resolveVASTAsset(
         continue;
       }
       ads.push({
-        id: creative.adId,
+        id: ad.id,
         url: mediaFile.fileURL,
         duration: creative.duration,
-        tracking: creative.trackingEvents,
+        tracking: {
+          // Tracking relative to the ad.
+          error: ad.errorURLTemplates,
+          impression: ad.impressionURLTemplates?.map(
+            (template) => template.url,
+          ),
+          // Tracking relative to the creative.
+          ...creative.trackingEvents,
+        },
       });
     }
   }

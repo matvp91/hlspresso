@@ -8,7 +8,7 @@ type SignalingPod = {
 };
 
 type SignalingSlot = {
-  type: SignalingAdType;
+  type: "linear";
   start: number;
   duration: number;
   identifiers: SignalingAdIdentifier[];
@@ -21,33 +21,36 @@ type SignalingTrackingEvent = {
   urls: string[];
 };
 
-type SignalingAdType = "linear";
-
 type SignalingAdIdentifier = {
   scheme: string;
   value: string;
 };
 
-export type SignalingEventType =
+type SignalingEventType =
   | "impression"
   | "clickTracking"
-  | "complete"
   | "error"
-  | "firstQuartile"
-  | "loaded"
-  | "midpoint"
-  | "mute"
-  | "pause"
-  | "playerCollapse"
-  | "playerExpand"
+  // Break
   | "podEnd"
   | "podStart"
-  | "progress"
-  | "resume"
-  | "skip"
+  // Lifecycle
+  | "loaded"
   | "start"
+  | "firstQuartile"
+  | "midpoint"
   | "thirdQuartile"
-  | "unmute";
+  | "complete"
+  // Volume
+  | "mute"
+  | "unmute"
+  // State
+  | "pause"
+  | "resume"
+  // Other
+  | "skip"
+  | "progress"
+  | "playerCollapse"
+  | "playerExpand";
 
 type SignalingBaseEnvelope = {
   version: 2;
@@ -67,15 +70,42 @@ export function createAdCreativeSignaling(
   start: number,
 ): Extract<SignalingBaseEnvelope, { type: "slot" }> {
   const tracking: SignalingTrackingEvent[] = [];
-  for (const key in ad.tracking) {
-    const urls = ad.tracking[key];
-    if (!urls?.length) {
+  for (const type in ad.tracking) {
+    const urls = ad.tracking[type];
+    if (!urls || !urls.length) {
       continue;
     }
-    tracking.push({
-      type: key as SignalingEventType,
-      urls,
-    });
+    if (
+      type === "start" ||
+      type === "firstQuartile" ||
+      type === "midpoint" ||
+      type === "thirdQuartile" ||
+      type === "complete" ||
+      type === "mute" ||
+      type === "unmute" ||
+      type === "pause" ||
+      type === "resume" ||
+      type === "error" ||
+      type === "impression"
+    ) {
+      tracking.push({
+        type,
+        urls,
+      });
+    }
+    if (type === "collapse") {
+      tracking.push({
+        type: "playerCollapse",
+        urls,
+      });
+    }
+    if (type === "expand") {
+      tracking.push({
+        type: "playerExpand",
+        urls,
+      });
+    }
+    // TODO: What to do with fullscreen and fullscreenExit?
   }
   return {
     version: 2,
