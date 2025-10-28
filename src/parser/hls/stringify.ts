@@ -31,6 +31,41 @@ export function stringifyMainPlaylist(playlist: MainPlaylist) {
     lines.push(`#EXT-X-DEFINE:${attrs.join(",")}`);
   }
 
+  if (playlist.medias.length) {
+    lines.push("");
+  }
+
+  for (const media of playlist.medias) {
+    const attrs = [
+      `TYPE=${media.type}`,
+      `GROUP-ID="${media.groupId}"`,
+      `NAME="${media.name}"`,
+    ];
+    if (media.language) {
+      attrs.push(`LANGUAGE="${media.language}"`);
+    }
+    if (media.default !== undefined) {
+      attrs.push(`DEFAULT=${media.default ? "YES" : "NO"}`);
+    }
+    if (media.autoSelect !== undefined) {
+      attrs.push(`AUTOSELECT=${media.autoSelect ? "YES" : "NO"}`);
+    }
+    if (media.uri) {
+      attrs.push(`URI="${media.uri}"`);
+    }
+    if (media.channels) {
+      attrs.push(`CHANNELS="${media.channels}"`);
+    }
+    if (media.characteristics) {
+      attrs.push(`CHARACTERISTICS="${media.characteristics}"`);
+    }
+    lines.push(`#EXT-X-MEDIA:${attrs.join(",")}`);
+  }
+
+  if (playlist.variants.length) {
+    lines.push("");
+  }
+
   for (const variant of playlist.variants) {
     const attrs = [`BANDWIDTH=${variant.bandwidth}`];
     if (variant.codecs) {
@@ -66,33 +101,6 @@ export function stringifyMainPlaylist(playlist: MainPlaylist) {
     lines.push(variant.uri);
   }
 
-  for (const media of playlist.medias) {
-    const attrs = [
-      `TYPE=${media.type}`,
-      `GROUP-ID="${media.groupId}"`,
-      `NAME="${media.name}"`,
-    ];
-    if (media.language) {
-      attrs.push(`LANGUAGE="${media.language}"`);
-    }
-    if (media.default !== undefined) {
-      attrs.push(`DEFAULT=${media.default ? "YES" : "NO"}`);
-    }
-    if (media.autoSelect !== undefined) {
-      attrs.push(`AUTOSELECT=${media.autoSelect ? "YES" : "NO"}`);
-    }
-    if (media.uri) {
-      attrs.push(`URI="${media.uri}"`);
-    }
-    if (media.channels) {
-      attrs.push(`CHANNELS="${media.channels}"`);
-    }
-    if (media.characteristics) {
-      attrs.push(`CHARACTERISTICS="${media.characteristics}"`);
-    }
-    lines.push(`#EXT-X-MEDIA:${attrs.join(",")}`);
-  }
-
   return lines.join("\n");
 }
 
@@ -104,6 +112,10 @@ export function stringifyMediaPlaylist(playlist: MediaPlaylist) {
     "#EXT-X-VERSION:8",
     `#EXT-X-TARGETDURATION:${playlist.targetDuration}`,
   );
+
+  if (playlist.playlistType) {
+    lines.push(`#EXT-X-PLAYLIST-TYPE:${playlist.playlistType}`);
+  }
 
   for (const define of playlist.defines) {
     const attrs = [];
@@ -131,10 +143,6 @@ export function stringifyMediaPlaylist(playlist: MediaPlaylist) {
     lines.push(
       `#EXT-X-DISCONTINUITY-SEQUENCE:${playlist.discontinuitySequenceBase}`,
     );
-  }
-
-  if (playlist.playlistType) {
-    lines.push(`#EXT-X-PLAYLIST-TYPE:${playlist.playlistType}`);
   }
 
   let lastMap: HLSMap | undefined;
