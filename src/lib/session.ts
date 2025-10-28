@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import { DateTime } from "luxon";
 import { ApiError } from "../error";
+import type { AppContext } from "../routes";
 import { sessionSchema } from "../schema";
 import type {
   Asset,
@@ -8,11 +9,10 @@ import type {
   Interstitial,
   Session,
 } from "../types";
-import type { Bindings } from "../utils/bindings";
 import { getDuration } from "./playlist";
 
 export async function createSession(
-  bindings: Bindings,
+  c: AppContext,
   params: CreateSessionParams,
 ) {
   let id = crypto.randomUUID();
@@ -62,14 +62,16 @@ export async function createSession(
     mergeInterstitials(session.interstitials, interstitials);
   }
 
+  c.var.logger.info(session, "Created new session");
+
   const json = sessionSchema.encode(session);
-  await bindings.kv.set(`session:${id}`, json, session.expiry);
+  await c.var.kv.set(`session:${id}`, json, session.expiry);
 
   return session;
 }
 
-export async function getSession(bindings: Bindings, id: string) {
-  const json = await bindings.kv.get(`session:${id}`);
+export async function getSession(c: AppContext, id: string) {
+  const json = await c.var.kv.get(`session:${id}`);
   if (!json) {
     throw new ApiError({
       code: "NOT_FOUND",
@@ -90,10 +92,10 @@ export async function getSession(bindings: Bindings, id: string) {
   return session;
 }
 
-export async function updateSession(bindings: Bindings, session: Session) {
+export async function updateSession(c: AppContext, session: Session) {
   const { id } = session;
   const json = sessionSchema.encode(session);
-  await bindings.kv.set(`session:${id}`, json, session.expiry);
+  await c.var.kv.set(`session:${id}`, json, session.expiry);
 }
 
 export function toDateTime(startTime: DateTime, time: string | number) {

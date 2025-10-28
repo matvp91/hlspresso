@@ -1,16 +1,13 @@
 import type { AppRouteHandler } from "..";
 import { createSession } from "../../lib/session";
-import { getBindings } from "../../utils/bindings";
 import type { CreateRoute } from "./sessions.routes";
 
 export const create: AppRouteHandler<CreateRoute> = async (c) => {
-  const bindings = await getBindings(c);
-
   const url = new URL(c.req.url);
-  const baseUrl = bindings.env.BASE_URL ?? `${url.protocol}//${url.host}`;
+  const baseUrl = c.var.params.BASE_URL ?? `${url.protocol}//${url.host}`;
 
   const params = c.req.valid("json");
-  const session = await createSession(bindings, params);
+  const session = await createSession(c, params);
 
   return c.json({
     id: session.id,

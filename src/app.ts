@@ -4,6 +4,7 @@ import { cors } from "hono/cors";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { handleApiError } from "./error";
 import { createRouter } from "./routes";
+import { appData } from "./routes/middleware";
 import out from "./routes/out/out.index";
 import sessions from "./routes/sessions/sessions.index";
 
@@ -11,6 +12,7 @@ export const app = createRouter();
 
 app.use(cors());
 app.use(pinoLogger());
+app.use(appData);
 
 app.onError((err, c) => {
   c.var.logger.error(err);

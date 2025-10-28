@@ -3,17 +3,13 @@ import { processMainPlaylist, processMediaPlaylist } from "../..//lib/playlist";
 import { getSession } from "../../lib/session";
 import { createAdCreativeSignaling, resolveVASTAsset } from "../../lib/vast";
 import type { AssetListResponse } from "../../types";
-import { getBindings } from "../../utils/bindings";
 import type { AssetListRoute, MainRoute, MediaRoute } from "./out.routes";
 
 export const main: AppRouteHandler<MainRoute> = async (c) => {
-  const bindings = await getBindings(c);
-
   const { sessionId } = c.req.valid("param");
-  const session = await getSession(bindings, sessionId);
+  const session = await getSession(c, sessionId);
 
-  const text = await processMainPlaylist({
-    bindings,
+  const text = await processMainPlaylist(c, {
     session,
   });
 
@@ -23,10 +19,8 @@ export const main: AppRouteHandler<MainRoute> = async (c) => {
 };
 
 export const media: AppRouteHandler<MediaRoute> = async (c) => {
-  const bindings = await getBindings(c);
-
   const { sessionId, payload } = c.req.valid("param");
-  const session = await getSession(bindings, sessionId);
+  const session = await getSession(c, sessionId);
 
   const text = await processMediaPlaylist({
     session,
@@ -39,10 +33,8 @@ export const media: AppRouteHandler<MediaRoute> = async (c) => {
 };
 
 export const assetList: AppRouteHandler<AssetListRoute> = async (c) => {
-  const bindings = await getBindings(c);
-
   const { sessionId, payload } = c.req.valid("param");
-  const session = await getSession(bindings, sessionId);
+  const session = await getSession(c, sessionId);
 
   const data: AssetListResponse = {
     ASSETS: [],
@@ -62,7 +54,8 @@ export const assetList: AppRouteHandler<AssetListRoute> = async (c) => {
         totalDuration += asset.duration;
       }
       if (asset.type === "VAST" || asset.type === "VASTDATA") {
-        const ads = await resolveVASTAsset(asset);
+        const ads = await resolveVASTAsset(c, asset);
+        c.var.logger.info(ads, "Resolved ads");
         for (const ad of ads) {
           const adSignaling = createAdCreativeSignaling(ad, totalDuration);
           data.ASSETS.push({

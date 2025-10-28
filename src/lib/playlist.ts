@@ -9,24 +9,23 @@ import {
 } from "../parser/hls";
 import type { MainPlaylist, MediaPlaylist } from "../parser/hls";
 import { getVMAP } from "../parser/vmap";
+import type { AppContext } from "../routes";
 import { mediaPayloadSchema } from "../schema";
 import type { Asset, Interstitial, MediaPayload, Session } from "../types";
-import type { Bindings } from "../utils/bindings";
 import { getUrlCommonPrefix, replaceUrlParams, resolveUrl } from "../utils/url";
 import { addInterstitialDateRanges } from "./interstitials";
 import { mergeInterstitials, toDateTime, updateSession } from "./session";
 
 type ProcessMainPlaylistParams = {
-  bindings: Bindings;
   session: Session;
 };
 
-export async function processMainPlaylist({
-  bindings,
-  session,
-}: ProcessMainPlaylistParams) {
+export async function processMainPlaylist(
+  c: AppContext,
+  { session }: ProcessMainPlaylistParams,
+) {
   const { url } = session;
-  await updateSessionOnMainPlaylist(bindings, session);
+  await updateSessionOnMainPlaylist(c, session);
 
   const playlistText = await ky.get(url).text();
   const playlist = parseMainPlaylist(playlistText);
@@ -80,17 +79,14 @@ export async function processMediaPlaylist({
   return stringifyMediaPlaylist(playlist);
 }
 
-async function updateSessionOnMainPlaylist(
-  bindings: Bindings,
-  session: Session,
-) {
+async function updateSessionOnMainPlaylist(c: AppContext, session: Session) {
   let storeSession = false;
 
   // If we have a vmap config but no result yet, we'll resolve it.
   if (session.vmap) {
-    const vmap = await getVMAP({
-      url: replaceUrlParams(session.vmap),
-    });
+    const url = replaceUrlParams(session.vmap);
+    c.var.logger.info({ url }, "Requesting VMAP");
+    const vmap = await getVMAP({ url });
 
     // Delete the VMAP url. We don't need to parse it again.
     session.vmap = undefined;
@@ -120,13 +116,19 @@ async function updateSessionOnMainPlaylist(
       });
     }
 
-    mergeInterstitials(session.interstitials, interstitials);
+    if (interstitials.length) {
+      c.var.logger.info(
+        interstitials,
+        "Created a new set of interstitials from VMAP",
+      );
+      mergeInterstitials(session.interstitials, interstitials);
+    }
 
     storeSession = true;
   }
 
   if (storeSession) {
-    await updateSession(bindings, session);
+    await updateSession(c, session);
   }
 }
 export async function getDuration(mainUrl: string) {

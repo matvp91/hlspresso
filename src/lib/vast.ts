@@ -1,6 +1,7 @@
 import { DOMParser } from "@xmldom/xmldom";
 import { VASTClient } from "extern/vast-client";
 import type { VASTResponse } from "extern/vast-client";
+import type { AppContext } from "../routes";
 import type { svta2503 } from "../spec/svta2503";
 import type { Asset } from "../types";
 import { replaceUrlParams } from "../utils/url";
@@ -30,10 +31,13 @@ export type AdTracking = {
   [key: string]: string[] | undefined;
 };
 
-export async function resolveVASTAsset(asset: Asset) {
+export async function resolveVASTAsset(c: AppContext, asset: Asset) {
   const vastClient = new VASTClient();
   if (asset.type === "VAST") {
-    const vastResponse = await vastClient.get(replaceUrlParams(asset.url));
+    const url = replaceUrlParams(asset.url);
+    c.var.logger.info({ url }, "Requesting VAST");
+    const vastResponse = await vastClient.get(url);
+    c.var.logger.info(vastResponse, "Received VAST response");
     return mapAds(vastResponse);
   }
   if (asset.type === "VASTDATA") {
