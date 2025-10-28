@@ -11,6 +11,8 @@ We host an example at https://hlspresso.green-mode-c2f7.workers.dev/v1/docs, fee
 - Live streams with CUE-IN and CUE-OUT markers for ad replacement.
 - Ad Creative Signaling (SVTA2053-2) spec.
 
+## API
+
 Create a personalized HLS playlist for each playback session by sending a `POST` request to `/api/v1/sessions`.
 
 ```sh
@@ -25,13 +27,20 @@ POST https://my-domain.com/api/v1/sessions
       "time": 0,
       "type": "STATIC",
       "url": "https://foo.bar/bumpers/intro.m3u8"
-    },
-    // and / or
+    }
+  ]
+}
+```
+
+You can also use a VAST URL instead of a static asset. In the example below, a midroll is inserted at position 10, serving one or more ads fetched from the VAST URL. To try it out, you can use an [IMA sample tag](https://developers.google.com/interactive-media-ads/docs/sdks/html5/client-side/tags).
+
+```js
+{
+  "url": "https://foo.bar/main.m3u8",
+  "interstitials": [
     {
-      "time": 0,
+      "time": 10,
       "type": "VAST",
-      // Test it out with a Google IMA sample tag:
-      // https://developers.google.com/interactive-media-ads/docs/sdks/html5/client-side/tags
       "url": "https://pubads.g.doubleclick.net/gampad/ads?iu=/external/single_ad_sample&sz=640x480"
     }
   ]
