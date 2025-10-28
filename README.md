@@ -19,6 +19,10 @@ Create a personalized HLS playlist for each playback session by sending a `POST`
 POST https://my-domain.com/api/v1/sessions
 ```
 
+### Interstitials
+
+Insert interstitials, either manually or resolved by a VAST or VMAP.
+
 ```js
 {
   "url": "https://foo.bar/main.m3u8",
@@ -54,6 +58,19 @@ Alternatively, you could derive the interstitials from a VMAP response rather th
   "url": "https://foo.bar/main.m3u8",
   "vmap": {
     "url": "https://pubads.g.doubleclick.net/gampad/ads?iu=/external/vmap"
+  }
+}
+```
+
+### Filtering
+
+You can filter playlists.
+
+```js
+{
+  "url": "https://foo.bar/main.m3u8",
+  "filter": {
+    "height": "<= 720"
   }
 }
 ```
