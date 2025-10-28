@@ -13,6 +13,10 @@ We host an example at https://hlspresso.green-mode-c2f7.workers.dev/v1/docs, fee
 
 Create a personalized HLS playlist for each playback session by sending a `POST` request to `/api/v1/sessions`.
 
+```sh
+POST https://my-domain.com/api/v1/sessions
+```
+
 ```js
 {
   "url": "https://foo.bar/main.m3u8",
