@@ -1,5 +1,6 @@
 export class VASTClient {
   get(url: string): Promise<VASTResponse>;
+  parseVAST(xml: Document): Promise<VASTResponse>;
 }
 
 export type VASTResponse = {

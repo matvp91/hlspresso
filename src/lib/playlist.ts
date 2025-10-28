@@ -10,7 +10,7 @@ import {
 import type { MainPlaylist, MediaPlaylist } from "../parser/hls";
 import { getVMAP } from "../parser/vmap";
 import { mediaPayloadSchema } from "../schema";
-import type { Interstitial, MediaPayload, Session } from "../types";
+import type { Asset, Interstitial, MediaPayload, Session } from "../types";
 import type { Bindings } from "../utils/bindings";
 import { getUrlCommonPrefix, replaceUrlParams, resolveUrl } from "../utils/url";
 import { addInterstitialDateRanges } from "./interstitials";
@@ -98,18 +98,25 @@ async function updateSessionOnMainPlaylist(
     const interstitials: Interstitial[] = [];
     // Add each adBreak to the list of assets.
     for (const adBreak of vmap.adBreaks) {
-      if (!adBreak.adTagUri) {
-        // TODO: Support vastAdData too.
+      const assets: Asset[] = [];
+      if (adBreak.adTagUri) {
+        assets.push({
+          type: "VAST",
+          url: adBreak.adTagUri,
+        });
+      }
+      if (adBreak.vastAdData) {
+        assets.push({
+          type: "VASTDATA",
+          data: adBreak.vastAdData,
+        });
+      }
+      if (!assets.length) {
         continue;
       }
       interstitials.push({
         dateTime: toDateTime(session.startTime, adBreak.time),
-        assets: [
-          {
-            type: "VAST",
-            url: adBreak.adTagUri,
-          },
-        ],
+        assets,
       });
     }
 

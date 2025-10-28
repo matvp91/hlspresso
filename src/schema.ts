@@ -164,6 +164,7 @@ export const assetListResponseSchema = z.object({
       "X-AD-CREATIVE-SIGNALING": z.unknown().optional(),
     }),
   ),
+  "X-AD-CREATIVE-SIGNALING": z.unknown().optional(),
 });
 
 export const assetListPayloadSchema = risonCodec(

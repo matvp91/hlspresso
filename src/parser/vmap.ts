@@ -1,9 +1,16 @@
 import { DOMParser, XMLSerializer } from "@xmldom/xmldom";
 import { toS } from "hh-mm-ss";
 import ky from "ky";
-import type { VMAP, VMAPAdBreak } from "./types";
 
-export type { VMAP, VMAPAdBreak } from "./types";
+export type VMAPAdBreak = {
+  time: number;
+  adTagUri?: string;
+  vastAdData?: string;
+};
+
+export type VMAP = {
+  adBreaks: VMAPAdBreak[];
+};
 
 type GetVMAPParams = {
   url: string;

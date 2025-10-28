@@ -1,8 +1,7 @@
-import { createAdCreativeSignaling } from "src/ad-signaling";
 import type { AppRouteHandler } from "..";
 import { processMainPlaylist, processMediaPlaylist } from "../..//lib/playlist";
 import { getSession } from "../../lib/session";
-import { resolveVASTAsset } from "../../lib/vast";
+import { createAdCreativeSignaling, resolveVASTAsset } from "../../lib/vast";
 import type { AssetListResponse } from "../../types";
 import { getBindings } from "../../utils/bindings";
 import type { AssetListRoute, MainRoute, MediaRoute } from "./out.routes";
@@ -62,7 +61,7 @@ export const assetList: AppRouteHandler<AssetListRoute> = async (c) => {
         });
         totalDuration += asset.duration;
       }
-      if (asset.type === "VAST") {
+      if (asset.type === "VAST" || asset.type === "VASTDATA") {
         const ads = await resolveVASTAsset(asset);
         for (const ad of ads) {
           const adSignaling = createAdCreativeSignaling(ad, totalDuration);
