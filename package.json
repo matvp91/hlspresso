@@ -1,7 +1,7 @@
 {
   "name": "hlspresso",
   "scripts": {
-    "dev": "concurrently \"esbuild src/runtime/node.ts --bundle --outfile=dist/node.js --sourcemap --platform=node --format=cjs --watch\" \"node --inspect --env-file=.node-env --watch dist/node.js\"",
+    "dev": "concurrently \"esbuild src/runtime/node.ts --bundle --outfile=dist/node.js --sourcemap --platform=node --format=cjs --watch\" \"node --inspect --env-file=.node-env --watch dist/node.js | pino-pretty\"",
     "dev:wrangler": "wrangler dev src/runtime/cloudflare.ts",
     "deploy:wrangler": "wrangler deploy --minify src/runtime/cloudflare.ts"
   },
@@ -24,9 +24,12 @@
     "@xmldom/xmldom": "^0.8.11",
     "hh-mm-ss": "^1.2.0",
     "hono": "^4.10.2",
+    "hono-pino": "^0.10.3",
     "ky": "^1.13.0",
     "luxon": "^3.7.2",
     "node-graceful": "^3.1.0",
+    "pino": "^10.1.0",
+    "pino-pretty": "^13.1.2",
     "redis": "^5.9.0",
     "rison": "^0.1.1",
     "symmetric-cipher.js": "2.1.0-0",

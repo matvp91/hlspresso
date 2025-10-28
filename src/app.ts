@@ -1,4 +1,5 @@
 import { Scalar } from "@scalar/hono-api-reference";
+import { pinoLogger } from "hono-pino";
 import { cors } from "hono/cors";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { handleApiError } from "./error";
@@ -9,10 +10,10 @@ import sessions from "./routes/sessions/sessions.index";
 export const app = createRouter();
 
 app.use(cors());
+app.use(pinoLogger());
 
 app.onError((err, c) => {
-  // Log the error to console, we'd want to know what's going on.
-  console.error(err);
+  c.var.logger.error(err);
   const { error, status } = handleApiError(err);
   return c.json(error, status as ContentfulStatusCode);
 });
