@@ -211,19 +211,24 @@ export function stringifyMediaPlaylist(playlist: MediaPlaylist) {
   for (const dateRange of playlist.dateRanges) {
     const attrs = [
       `ID="${dateRange.id}"`,
-      `CLASS="${dateRange.classId}"`,
       `START-DATE="${dateRange.startDate.toISO()}"`,
     ];
 
+    if (dateRange.classId) {
+      attrs.push(`CLASS="${dateRange.classId}"`);
+    }
     if (dateRange.duration) {
       attrs.push(`DURATION=${dateRange.duration}`);
     }
-    if (dateRange.plannedDuration) {
+    if (
+      dateRange.plannedDuration &&
+      dateRange.plannedDuration !== dateRange.duration
+    ) {
       attrs.push(`PLANNED-DURATION=${dateRange.plannedDuration}`);
     }
 
-    if (dateRange.clientAttributes) {
-      const entries = Object.entries(dateRange.clientAttributes);
+    if (dateRange.custom) {
+      const entries = Object.entries(dateRange.custom);
       for (const [key, value] of entries) {
         if (typeof value === "string") {
           attrs.push(`X-${key}="${value}"`);

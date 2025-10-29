@@ -21,7 +21,7 @@ export function addInterstitialDateRanges({
       dateTime: interstitial.dateTime,
     });
 
-    const clientAttributes: Record<string, number | string> = {
+    const custom: Record<string, number | string> = {
       // RESTRICT: "SKIP,JUMP",
       RESTRICT: "JUMP",
       "ASSET-LIST": `/out/${session.id}/${payload}/asset-list.json`,
@@ -30,23 +30,24 @@ export function addInterstitialDateRanges({
       "TIMELINE-OCCUPIES": "POINT",
     };
     if (!isLive) {
-      clientAttributes["RESUME-OFFSET"] = 0;
+      custom["RESUME-OFFSET"] = 0;
     }
     if (interstitial.duration) {
-      clientAttributes["PLAYOUT-LIMIT"] = interstitial.duration;
-      clientAttributes["TIMELINE-OCCUPIES"] = "RANGE";
+      custom["PLAYOUT-LIMIT"] = interstitial.duration;
+      custom["TIMELINE-OCCUPIES"] = "RANGE";
+      custom["RESUME-OFFSET"] = interstitial.duration;
     }
 
     if (interstitial.dateTime.equals(session.startTime)) {
-      clientAttributes.CUE = "ONCE,PRE";
+      custom.CUE = "ONCE,PRE";
     }
 
     playlist.dateRanges.push({
       classId: "com.apple.hls.interstitial",
       id: `${btoa(interstitial.dateTime.toMillis().toString())}`,
       startDate: interstitial.dateTime,
-      clientAttributes,
       plannedDuration: interstitial.duration,
+      custom,
     });
   }
 }

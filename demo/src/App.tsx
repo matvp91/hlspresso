@@ -39,27 +39,32 @@ function Schedule({
   if (!items.length) {
     return null;
   }
-  const scheduleStart = items[0].integrated.start;
-  const scheduleEnd = items[items.length - 1].integrated.end;
+  const scheduleStart = manager.integrated.seekableStart;
+  const scheduleEnd = manager.integrated.duration;
   const scheduleDuration = scheduleEnd - scheduleStart;
 
   const onPointerUp: PointerEventHandler<HTMLDivElement> = (event) => {
     const { left, width } = event.currentTarget.getBoundingClientRect();
-    const percent = (event.clientX - left) / width;
+    let percent = (event.clientX - left) / width;
+    percent = Math.max(0, Math.min(1, percent));
     manager.integrated.currentTime = scheduleStart + scheduleDuration * percent;
   };
 
   return (
     <div className="text-sm font-mono" onPointerUp={onPointerUp}>
       <div className="flex items-center h-6">
-        {format(scheduleStart, { ms: true })}
+        {format(scheduleStart * 1000, { ms: true })}
         <div className="grow" />
-        {format(scheduleEnd, { ms: true })}
+        {format(scheduleEnd * 1000, { ms: true })}
       </div>
       <div className="relative h-12">
         <div className="flex h-2">
           {items.map((item, i) => {
-            const { start, end } = item.integrated;
+            const start = item.integrated.start;
+            let end = item.integrated.end;
+            if (!Number.isFinite(end)) {
+              end = scheduleEnd;
+            }
             const duration = end - start;
             if (!duration) {
               return null;
@@ -92,7 +97,7 @@ function Schedule({
                   item.event.assetListLoaded ? "bg-yellow-500" : "bg-black",
                 )}
                 style={{
-                  left: `${(start / scheduleDuration) * 100}%`,
+                  left: `${((start - scheduleStart) / scheduleDuration) * 100}%`,
                 }}
               />
             );
@@ -101,7 +106,7 @@ function Schedule({
         <div
           className="absolute top-0 h-full flex items-center flex-col -translate-x-1/2"
           style={{
-            left: `${(currentTime / scheduleDuration) * 100}%`,
+            left: `${((currentTime - scheduleStart) / scheduleDuration) * 100}%`,
           }}
         >
           <div className="h-full bg-black top-0 w-px" />

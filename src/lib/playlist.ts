@@ -12,7 +12,7 @@ import { getVMAP } from "../parser/vmap";
 import type { AppContext } from "../routes";
 import { mediaPayloadSchema } from "../schema";
 import type { Asset, Interstitial, MediaPayload, Session } from "../types";
-import { getUrlCommonPrefix, replaceUrlParams, resolveUrl } from "../utils/url";
+import { getUrlCommonPrefix, replaceUrlParams } from "../utils/url";
 import { addInterstitialDateRanges } from "./interstitials";
 import { mergeInterstitials, toDateTime, updateSession } from "./session";
 
@@ -52,10 +52,7 @@ export async function processMediaPlaylist({
   session,
   payload,
 }: ProcessMediaPlaylistParams) {
-  const origUrl = resolveUrl({
-    baseUrl: session.url,
-    path: payload.path,
-  });
+  const origUrl = new URL(payload.path, session.url);
 
   const playlistText = await ky.get(origUrl).text();
   const playlist = parseMediaPlaylist(playlistText);
@@ -139,10 +136,7 @@ export async function getDuration(mainUrl: string) {
   assert(variant, "Playlist should include atleast 1 variant");
 
   // Resolve and parse the first media playlist.
-  const mediaUrl = resolveUrl({
-    baseUrl: mainUrl,
-    path: variant.uri,
-  });
+  const mediaUrl = new URL(variant.uri, mainUrl);
 
   const mediaText = await ky.get(mediaUrl).text();
   const media = parseMediaPlaylist(mediaText);
@@ -178,22 +172,16 @@ function rewriteMediaUrlsInMain(playlist: MainPlaylist) {
   }
 }
 
-function rewriteSegmentUrlsInMedia(playlist: MediaPlaylist, origUrl: string) {
+function rewriteSegmentUrlsInMedia(playlist: MediaPlaylist, origUrl: URL) {
   const lookupMap = new Map<{ uri: string }, string>();
 
   // Collect all rewritable parts. These need to point
   // to the original URL.
   for (const segment of playlist.segments) {
-    const origSegmentUrl = resolveUrl({
-      baseUrl: origUrl,
-      path: segment.uri,
-    });
+    const origSegmentUrl = new URL(segment.uri, origUrl).toString();
     lookupMap.set(segment, origSegmentUrl);
     if (segment.map) {
-      const origMapUrl = resolveUrl({
-        baseUrl: origUrl,
-        path: segment.map.uri,
-      });
+      const origMapUrl = new URL(segment.map.uri, origUrl).toString();
       lookupMap.set(segment.map, origMapUrl);
     }
   }

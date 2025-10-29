@@ -85,11 +85,11 @@ export type HLSMap = {
 
 export type HLSDateRange = {
   id: string;
-  classId: string;
+  classId?: string;
   startDate: DateTime;
   duration?: number;
   plannedDuration?: number;
-  clientAttributes?: Record<string, string | number>;
+  custom?: Record<string, string | number>;
 };
 
 export type HLSKey = {
@@ -305,17 +305,18 @@ function parseLine(line: string): Tag | null {
               break;
             }
 
-            if (!attrs.clientAttributes) {
-              attrs.clientAttributes = {};
+            if (!attrs.custom) {
+              attrs.custom = {};
             }
 
-            const clientAttrName = key.substring(2, key.length);
+            // Remove the "X-" prefix.
+            const customAttrName = key.substring(2, key.length);
 
             if (!Number.isNaN(+value)) {
               // If the value represents a number, it is most likely a number.
-              attrs.clientAttributes[clientAttrName] = Number.parseFloat(value);
+              attrs.custom[customAttrName] = Number.parseFloat(value);
             } else {
-              attrs.clientAttributes[clientAttrName] = value;
+              attrs.custom[customAttrName] = value;
             }
 
             break;
@@ -324,7 +325,6 @@ function parseLine(line: string): Tag | null {
       });
 
       assert(attrs.id, "EXT-X-DATERANGE: no id");
-      assert(attrs.classId, "EXT-X-DATERANGE: no classId");
       assert(attrs.startDate, "EXT-X-DATERANGE: no startDate");
 
       return [
@@ -333,7 +333,9 @@ function parseLine(line: string): Tag | null {
           id: attrs.id,
           classId: attrs.classId,
           startDate: attrs.startDate,
-          clientAttributes: attrs.clientAttributes,
+          duration: attrs.duration,
+          plannedDuration: attrs.plannedDuration,
+          custom: attrs.custom,
         },
       ];
     }
