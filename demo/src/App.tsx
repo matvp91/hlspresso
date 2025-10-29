@@ -50,14 +50,14 @@ function Schedule({
   };
 
   return (
-    <div className="text-xs font-mono" onPointerUp={onPointerUp}>
-      <div className="flex items-center h-4">
+    <div className="text-sm font-mono" onPointerUp={onPointerUp}>
+      <div className="flex items-center h-6">
         {format(scheduleStart, { ms: true })}
         <div className="grow" />
         {format(scheduleEnd, { ms: true })}
       </div>
       <div className="relative h-12">
-        <div className="flex h-4">
+        <div className="flex h-2">
           {items.map((item, i) => {
             const { start, end } = item.integrated;
             const duration = end - start;
@@ -78,7 +78,7 @@ function Schedule({
             );
           })}
         </div>
-        <div className="h-4 relative flex items-center">
+        <div className="h-6 relative flex items-center">
           {items.map((item, i) => {
             const { start } = item.integrated;
             if (!item.event) {
