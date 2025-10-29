@@ -10,16 +10,20 @@ export function App({ hls }: { hls: Hls }) {
     return null;
   }
   return (
-    <div className="mt-4">
+    <div className="grid gap-4 mt-4">
       <Schedule manager={interstitialsManager} />
       {interstitialsManager.playingItem?.event ? (
-        <>
+        <div>
           {!interstitialsManager.playingItem.event.restrictions.skip ? (
-            <button type="button" onClick={() => interstitialsManager.skip()}>
+            <button
+              className="btn"
+              type="button"
+              onClick={() => interstitialsManager.skip()}
+            >
               Skip
             </button>
           ) : null}
-        </>
+        </div>
       ) : null}
     </div>
   );
@@ -46,7 +50,7 @@ function Schedule({
   };
 
   return (
-    <div className="text-[10px] font-mono" onPointerUp={onPointerUp}>
+    <div className="text-xs font-mono" onPointerUp={onPointerUp}>
       <div className="flex items-center h-4">
         {format(scheduleStart, { ms: true })}
         <div className="grow" />

@@ -28,27 +28,30 @@ async function run() {
     },
     body: JSON.stringify({
       url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
-      interstitials: [
-        {
-          time: 30,
-          duration: 5,
-          assets: [
-            {
-              type: "VAST",
-              url: "https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_ad_samples&sz=640x480&cust_params=sample_ct%3Dlinear&ciu_szs=300x250%2C728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&correlator={random}",
-            },
-          ],
-        },
-        {
-          time: 250,
-          assets: [
-            {
-              type: "VAST",
-              url: "https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_ad_samples&sz=640x480&cust_params=sample_ct%3Dlinear&ciu_szs=300x250%2C728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&correlator={random}",
-            },
-          ],
-        },
-      ],
+      // interstitials: [
+      //   {
+      //     time: 30,
+      //     duration: 5,
+      //     assets: [
+      //       {
+      //         type: "VAST",
+      //         url: "https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_ad_samples&sz=640x480&cust_params=sample_ct%3Dlinear&ciu_szs=300x250%2C728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&correlator={random}",
+      //       },
+      //     ],
+      //   },
+      //   {
+      //     time: 250,
+      //     assets: [
+      //       {
+      //         type: "VAST",
+      //         url: "https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_ad_samples&sz=640x480&cust_params=sample_ct%3Dlinear&ciu_szs=300x250%2C728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&correlator={random}",
+      //       },
+      //     ],
+      //   },
+      // ],
+      vmap: {
+        url: "https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/vmap_ad_samples&sz=640x480&cust_params=sample_ar%3Dpremidpostpod&ciu_szs=300x250&gdfp_req=1&ad_rule=1&output=vmap&unviewed_position_start=1&env=vp&cmsid=496&vid=short_onecue&correlator={random}",
+      },
     }),
   }).then((response) => response.json());
   hls.loadSource(url);

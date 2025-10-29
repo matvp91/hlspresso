@@ -1,4 +1,9 @@
 @import "tailwindcss";
+@plugin "daisyui";
+
+html {
+  font-size: 14px;
+}
 
 body {
   @apply p-8;
