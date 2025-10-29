@@ -10,7 +10,7 @@ body {
 }
 
 #videoElement {
-  @apply w-full;
+  @apply w-full aspect-video;
 }
 
 #videoElement::-webkit-media-controls-timeline {

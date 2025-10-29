@@ -88,10 +88,8 @@ function Schedule({
               <div
                 key={`${i}${start}`}
                 className={clsx(
-                  "absolute rounded-full -translate-x-1/2",
-                  item.event.assetListLoaded
-                    ? "bg-yellow-500 w-2 h-2"
-                    : "bg-black w-1 h-1",
+                  "absolute rounded-full -translate-x-1/2 h-2 w-2",
+                  item.event.assetListLoaded ? "bg-yellow-500" : "bg-black",
                 )}
                 style={{
                   left: `${(start / scheduleDuration) * 100}%`,
