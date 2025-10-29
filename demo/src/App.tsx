@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import format from "format-duration";
 import type Hls from "hls.js";
 import type { InterstitialsManager } from "hls.js";
 
@@ -8,59 +9,87 @@ export function App({ hls }: { hls: Hls }) {
     return null;
   }
   return (
-    <div className="p-4">
-      Integrated
-      <Schedule name="integrated" manager={interstitialsManager} />
-      Playout
-      <Schedule name="playout" manager={interstitialsManager} />
+    <div className="mt-4">
+      <Schedule manager={interstitialsManager} />
     </div>
   );
 }
 
 function Schedule({
-  name,
   manager,
 }: {
-  name: "integrated" | "playout";
   manager: InterstitialsManager;
 }) {
   const items = manager.schedule;
-  const currentTime =
-    name === "playout"
-      ? manager.primary.currentTime
-      : manager[name].currentTime;
+  const { currentTime } = manager.integrated;
   if (!items.length) {
     return null;
   }
-  const start = items[0][name].start;
-  const end = items[items.length - 1][name].end;
-  const duration = end - start;
+  const scheduleStart = items[0].integrated.start;
+  const scheduleEnd = items[items.length - 1].integrated.end;
+  const scheduleDuration = scheduleEnd - scheduleStart;
 
   return (
-    <div className="h-4 flex mb-4 relative">
-      {items.map((item, i) => {
-        const { start, end } = item[name];
-        return (
-          <div
-            className={clsx(
-              "h-full relative",
-              item.event ? "bg-amber-400" : "bg-gray-200",
-            )}
-            key={`${i}${start}`}
-            style={{
-              width: `${((end - start) / duration) * 100}%`,
-            }}
-          >
-            <div className="absolute w-1 rounded-full -left-0.5 h-1 bg-pink-500 top-full" />
-          </div>
-        );
-      })}
-      <div
-        className="w-px h-full bg-black absolute top-0 -translate-x-[0.5px]"
-        style={{
-          left: `${(currentTime / duration) * 100}%`,
-        }}
-      />
+    <div className="text-[10px] font-mono">
+      <div className="flex items-center h-4">
+        {format(scheduleStart, { ms: true })}
+        <div className="grow" />
+        {format(scheduleEnd, { ms: true })}
+      </div>
+      <div className="relative h-24">
+        <div className="flex h-4">
+          {items.map((item, i) => {
+            const { start, end } = item.integrated;
+            const duration = end - start;
+            if (!duration) {
+              return null;
+            }
+            return (
+              <div
+                className={clsx(
+                  "h-full relative",
+                  item.event ? "bg-yellow-500" : "bg-gray-200",
+                )}
+                key={`${i}${start}`}
+                style={{
+                  width: `${(duration / scheduleDuration) * 100}%`,
+                }}
+              />
+            );
+          })}
+        </div>
+        <div className="h-4 relative flex items-center">
+          {items.map((item, i) => {
+            const { start } = item.integrated;
+            if (!item.event) {
+              return null;
+            }
+            return (
+              <div
+                key={`${i}${start}`}
+                className={clsx(
+                  "absolute rounded-full -translate-x-1/2",
+                  item.event.assetListLoaded
+                    ? "bg-yellow-500 w-2 h-2"
+                    : "bg-black w-1 h-1",
+                )}
+                style={{
+                  left: `${(start / scheduleDuration) * 100}%`,
+                }}
+              />
+            );
+          })}
+        </div>
+        <div
+          className="absolute top-0 h-full flex items-center flex-col -translate-x-1/2"
+          style={{
+            left: `${(currentTime / scheduleDuration) * 100}%`,
+          }}
+        >
+          <div className="h-full bg-black top-0 w-px" />
+          {format(currentTime * 1000, { ms: true })}
+        </div>
+      </div>
     </div>
   );
 }

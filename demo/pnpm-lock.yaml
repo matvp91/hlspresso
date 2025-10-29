@@ -17,6 +17,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      format-duration:
+        specifier: ^3.0.2
+        version: 3.0.2
       hls.js:
         specifier: ^1.6.13
         version: 1.6.13
@@ -588,6 +591,9 @@ packages:
     peerDependenciesMeta:
       picomatch:
         optional: true
+
+  format-duration@3.0.2:
+    resolution: {integrity: sha512-pKzJDSRgK2lqAiPW3uizDaIJaJnataZclsahz25UMwfdryBGDa+1HlbXGjzpMvX/2kMh4O0sNevFXKaEfCjHsA==}
 
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
@@ -1263,6 +1269,8 @@ snapshots:
   fdir@6.5.0(picomatch@4.0.3):
     optionalDependencies:
       picomatch: 4.0.3
+
+  format-duration@3.0.2: {}
 
   fsevents@2.3.3:
     optional: true

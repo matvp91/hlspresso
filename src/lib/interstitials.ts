@@ -25,7 +25,6 @@ export function addInterstitialDateRanges({
       RESTRICT: "SKIP,JUMP",
       "ASSET-LIST": `/out/${session.id}/${payload}/asset-list.json`,
       "CONTENT-MAY-VARY": "YES",
-      "TIMELINE-STYLE": "HIGHLIGHT",
     };
     if (!isLive) {
       clientAttributes["RESUME-OFFSET"] = 0;

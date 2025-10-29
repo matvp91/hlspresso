@@ -13,6 +13,7 @@
     "@tailwindcss/vite": "^4.1.16",
     "@vitejs/plugin-react": "^5.1.0",
     "clsx": "^2.1.1",
+    "format-duration": "^3.0.2",
     "hls.js": "^1.6.13",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
