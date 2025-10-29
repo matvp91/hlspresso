@@ -31,6 +31,7 @@ async function run() {
       interstitials: [
         {
           time: 30,
+          duration: 5,
           assets: [
             {
               type: "VAST",

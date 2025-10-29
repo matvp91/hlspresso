@@ -22,15 +22,19 @@ export function addInterstitialDateRanges({
     });
 
     const clientAttributes: Record<string, number | string> = {
-      RESTRICT: "SKIP,JUMP",
+      // RESTRICT: "SKIP,JUMP",
+      RESTRICT: "JUMP",
       "ASSET-LIST": `/out/${session.id}/${payload}/asset-list.json`,
       "CONTENT-MAY-VARY": "YES",
+      "TIMELINE-STYLE": "HIGHLIGHT",
+      "TIMELINE-OCCUPIES": "POINT",
     };
     if (!isLive) {
       clientAttributes["RESUME-OFFSET"] = 0;
     }
     if (interstitial.duration) {
       clientAttributes["PLAYOUT-LIMIT"] = interstitial.duration;
+      clientAttributes["TIMELINE-OCCUPIES"] = "RANGE";
     }
 
     if (interstitial.dateTime.equals(session.startTime)) {

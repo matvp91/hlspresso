@@ -12,6 +12,15 @@ export function App({ hls }: { hls: Hls }) {
   return (
     <div className="mt-4">
       <Schedule manager={interstitialsManager} />
+      {interstitialsManager.playingItem?.event ? (
+        <>
+          {!interstitialsManager.playingItem.event.restrictions.skip ? (
+            <button type="button" onClick={() => interstitialsManager.skip()}>
+              Skip
+            </button>
+          ) : null}
+        </>
+      ) : null}
     </div>
   );
 }
