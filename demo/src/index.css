@@ -3,3 +3,11 @@
 body {
   @apply p-8;
 }
+
+#videoElement {
+  @apply w-full;
+}
+
+#videoElement::-webkit-media-controls-timeline {
+  @apply hidden;
+}

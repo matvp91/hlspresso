@@ -2,6 +2,7 @@ import clsx from "clsx";
 import format from "format-duration";
 import type Hls from "hls.js";
 import type { InterstitialsManager } from "hls.js";
+import type { PointerEventHandler } from "react";
 
 export function App({ hls }: { hls: Hls }) {
   const { interstitialsManager } = hls;
@@ -29,14 +30,20 @@ function Schedule({
   const scheduleEnd = items[items.length - 1].integrated.end;
   const scheduleDuration = scheduleEnd - scheduleStart;
 
+  const onPointerUp: PointerEventHandler<HTMLDivElement> = (event) => {
+    const { left, width } = event.currentTarget.getBoundingClientRect();
+    const percent = (event.clientX - left) / width;
+    manager.integrated.currentTime = scheduleStart + scheduleDuration * percent;
+  };
+
   return (
-    <div className="text-[10px] font-mono">
+    <div className="text-[10px] font-mono" onPointerUp={onPointerUp}>
       <div className="flex items-center h-4">
         {format(scheduleStart, { ms: true })}
         <div className="grow" />
         {format(scheduleEnd, { ms: true })}
       </div>
-      <div className="relative h-24">
+      <div className="relative h-12">
         <div className="flex h-4">
           {items.map((item, i) => {
             const { start, end } = item.integrated;
