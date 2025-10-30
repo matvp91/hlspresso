@@ -58,7 +58,7 @@ function Schedule({
         {format(scheduleEnd * 1000, { ms: true })}
       </div>
       <div className="relative h-12">
-        <div className="flex h-2">
+        <div className="flex h-2 relative">
           {items.map((item, i) => {
             const start = item.integrated.start;
             let end = item.integrated.end;
@@ -69,14 +69,16 @@ function Schedule({
             if (!duration) {
               return null;
             }
+            const startPercentage = (start - scheduleStart) / scheduleDuration;
             return (
               <div
                 className={clsx(
-                  "h-full relative",
+                  "h-full absolute",
                   item.event ? "bg-yellow-500" : "bg-gray-200",
                 )}
                 key={`${i}${start}`}
                 style={{
+                  left: `${startPercentage * 100}%`,
                   width: `${(duration / scheduleDuration) * 100}%`,
                 }}
               />

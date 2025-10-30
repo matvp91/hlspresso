@@ -81,9 +81,10 @@ async function updateSessionOnMainPlaylist(c: AppContext, session: Session) {
 
   // If we have a vmap config but no result yet, we'll resolve it.
   if (session.vmap) {
-    const url = replaceUrlParams(session.vmap);
-    c.var.logger.info({ url }, "Requesting VMAP");
-    const vmap = await getVMAP({ url });
+    c.var.logger.info(session.vmap, "Requesting VMAP");
+    const vmap = await getVMAP({
+      url: replaceUrlParams(session.vmap.url),
+    });
 
     // Delete the VMAP url. We don't need to parse it again.
     session.vmap = undefined;

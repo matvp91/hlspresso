@@ -87,6 +87,14 @@ export const filterSchema = z
   })
   .openapi("Filter");
 
+const vastConfigSchema = z.strictObject({
+  url: z.string(),
+});
+
+const vmapConfigSchema = z.strictObject({
+  url: z.string(),
+});
+
 export const createSessionParamsSchema = z.strictObject({
   url: z.string().openapi({
     description: "The HLS main playlist source.",
@@ -115,10 +123,9 @@ export const createSessionParamsSchema = z.strictObject({
                   description:
                     "A static URL asset, must point to an HLS main playlist source.",
                 }),
-              z
-                .strictObject({
+              vastConfigSchema
+                .extend({
                   type: z.literal("VAST"),
-                  url: z.string(),
                 })
                 .openapi({
                   description:
@@ -136,14 +143,13 @@ export const createSessionParamsSchema = z.strictObject({
     .openapi({
       description: "Manual interstitial insertion.",
     }),
-  vmap: z
-    .strictObject({
-      url: z.string(),
-    })
-    .optional()
-    .openapi({
-      description: "Add interstitials based on the ads defined in the VMAP.",
-    }),
+  vmap: vmapConfigSchema.optional().openapi({
+    description: "Add interstitials based on the ads defined in the VMAP.",
+  }),
+  vast: vastConfigSchema.optional().openapi({
+    description:
+      "Generic VAST configuration, typically used for live where ad signaling is used to replace linear breaks.",
+  }),
   expiry: z
     .union([z.number(), z.literal(false)])
     .default(60 * 60 * 48)
@@ -209,7 +215,8 @@ export const sessionSchema = jsonCodec(
     expiry: z.number(),
     url: z.string(),
     interstitials: z.array(interstitialSchema),
-    vmap: z.string().optional(),
+    vmap: vmapConfigSchema.optional(),
+    vast: vastConfigSchema.optional(),
     filter: filterSchema.optional(),
   }),
 );

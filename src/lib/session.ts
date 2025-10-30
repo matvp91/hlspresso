@@ -29,7 +29,8 @@ export async function createSession(
     expiry: params.expiry === false ? 60 * 60 * 24 * 365 * 5 : params.expiry,
     url: params.url,
     interstitials: [],
-    vmap: params.vmap?.url,
+    vmap: params.vmap,
+    vast: params.vast,
     filter: params.filter,
   };
 

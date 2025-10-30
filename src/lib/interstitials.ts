@@ -28,8 +28,6 @@ export function addInterstitialDateRanges({
     });
 
     const custom: Record<string, number | string> = {
-      // RESTRICT: "SKIP,JUMP",
-      RESTRICT: "JUMP",
       "ASSET-LIST": `/out/${session.id}/${payload}/asset-list.json`,
       "CONTENT-MAY-VARY": "YES",
       "TIMELINE-STYLE": "HIGHLIGHT",
@@ -41,7 +39,6 @@ export function addInterstitialDateRanges({
     if (interstitial.duration) {
       custom["PLAYOUT-LIMIT"] = interstitial.duration;
       custom["TIMELINE-OCCUPIES"] = "RANGE";
-      custom["RESUME-OFFSET"] = interstitial.duration;
     }
 
     if (interstitial.dateTime.equals(session.startTime)) {
