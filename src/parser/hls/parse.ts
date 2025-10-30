@@ -1,15 +1,14 @@
 import type { DateTime } from "luxon";
 import { assert } from "../../assert";
-import {
-  type HLSDateRange,
-  type HLSDefine,
-  type HLSKey,
-  type HLSMap,
-  type HLSPlaylistType,
-  type Tag,
-  type TagName,
-  lexicalParse,
-  nextLiteral,
+import { lexicalParse, nextLiteral } from "./lexical-parse";
+import type {
+  HLSDateRange,
+  HLSDefine,
+  HLSKey,
+  HLSMap,
+  HLSPlaylistType,
+  Tag,
+  TagName,
 } from "./lexical-parse";
 import type {
   MainPlaylist,
@@ -82,6 +81,8 @@ export function parseMediaPlaylist(text: string): MediaPlaylist {
   const segments: Segment[] = [];
   const defines: HLSDefine[] = [];
 
+  const splicedDateRanges: HLSDateRange[] = [];
+
   for (const [name, value] of tags) {
     if (name === "EXT-X-TARGETDURATION") {
       targetDuration = value;
@@ -102,7 +103,13 @@ export function parseMediaPlaylist(text: string): MediaPlaylist {
       discontinuitySequenceBase = value;
     }
     if (name === "EXT-X-DATERANGE") {
-      dateRanges.push(value);
+      if (value.spliceInfo) {
+        // When the dateRange contains spliced info, we're going to
+        // collect it and match it with the corresponding segment.
+        splicedDateRanges.push(value);
+      } else {
+        dateRanges.push(value);
+      }
     }
     if (name === "EXT-X-DEFINE") {
       defines.push(value);
@@ -117,7 +124,7 @@ export function parseMediaPlaylist(text: string): MediaPlaylist {
       }
     } else if (name === "LITERAL") {
       const segmentTags = tags.slice(segmentStart, index + 1);
-      const segment = parseSegment(segmentTags);
+      const segment = parseSegment(segmentTags, splicedDateRanges);
       segments.push(segment);
       segmentStart = null;
     }
@@ -140,7 +147,10 @@ export function parseMediaPlaylist(text: string): MediaPlaylist {
   };
 }
 
-function parseSegment(tags: Tag[]): Segment {
+function parseSegment(
+  segmentTags: Tag[],
+  splicedDateRanges: HLSDateRange[],
+): Segment {
   let duration: number | undefined;
   let discontinuity: boolean | undefined;
   let programDateTime: DateTime | undefined;
@@ -149,7 +159,7 @@ function parseSegment(tags: Tag[]): Segment {
   let map: HLSMap | undefined;
   let key: HLSKey | undefined;
 
-  for (const [name, value] of tags) {
+  for (const [name, value] of segmentTags) {
     if (name === "EXTINF") {
       duration = value.duration;
     }
@@ -173,6 +183,16 @@ function parseSegment(tags: Tag[]): Segment {
     }
     if (name === "LITERAL") {
       uri = value;
+    }
+  }
+
+  // Find spliceInfo from the dataRange tags.
+  if (!spliceInfo && programDateTime) {
+    const dateRange = splicedDateRanges.find((item) =>
+      item.startDate.equals(programDateTime),
+    );
+    if (dateRange?.spliceInfo) {
+      spliceInfo = dateRange.spliceInfo;
     }
   }
 

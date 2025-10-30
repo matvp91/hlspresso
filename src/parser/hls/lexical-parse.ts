@@ -1,6 +1,7 @@
 import { DateTime } from "luxon";
 import { assert } from "../../assert";
 import { hexToByteSequence, mapAttributes, partOf } from "./helpers";
+import type { SpliceInfo } from "./types";
 
 // Based on the latest spec:
 // https://datatracker.ietf.org/doc/html/draft-pantos-hls-rfc8216bis
@@ -89,6 +90,7 @@ export type HLSDateRange = {
   startDate: DateTime;
   duration?: number;
   plannedDuration?: number;
+  spliceInfo?: SpliceInfo;
   custom?: Record<string, string | number>;
 };
 
@@ -300,6 +302,12 @@ function parseLine(line: string): Tag | null {
           case "PLANNED-DURATION":
             attrs.plannedDuration = Number.parseFloat(value);
             break;
+          case "SCTE35-OUT":
+            attrs.spliceInfo = {
+              type: "OUT",
+              data: hexToByteSequence(value),
+            };
+            break;
           default: {
             if (!key.startsWith("X-")) {
               break;
@@ -335,6 +343,7 @@ function parseLine(line: string): Tag | null {
           startDate: attrs.startDate,
           duration: attrs.duration,
           plannedDuration: attrs.plannedDuration,
+          spliceInfo: attrs.spliceInfo,
           custom: attrs.custom,
         },
       ];
