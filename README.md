@@ -5,7 +5,7 @@ A lightweight HLS proxy that can insert HLS interstitials on the fly.
 We host an example at https://hlspresso.green-mode-c2f7.workers.dev/v1/docs, feel free to toy with it.
 
 - VOD with precise insertion points, manual or VMAP.
-- VAST (up to 6) support.
+- VAST (up to 4) support.
 - Playlist filtering and modification, on the fly.
 - Can run at the edge or on serverless platforms like Cloudflare Workers and AWS Lambda.
 - Live streams with CUE-IN and CUE-OUT markers for ad replacement.
