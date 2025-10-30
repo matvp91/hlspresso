@@ -69,5 +69,18 @@ export const assetList: AppRouteHandler<AssetListRoute> = async (c) => {
     }
   }
 
+  if (session.vast) {
+    const ads = await resolveVASTAsset(c, {
+      type: "VAST",
+      url: session.vast.url,
+    });
+    for (const ad of ads) {
+      data.ASSETS.push({
+        URI: ad.url,
+        DURATION: ad.duration,
+      });
+    }
+  }
+
   return c.json(data);
 };

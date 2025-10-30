@@ -29,6 +29,9 @@ async function run() {
     body: JSON.stringify({
       // url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
       url: "https://dw9wwx1tf45dj.cloudfront.net/v1/channel/TestChannel1/cmaf.m3u8",
+      vast: {
+        url: "https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_ad_samples&sz=640x480&cust_params=sample_ct%3Dlinear&ciu_szs=300x250%2C728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&correlator={random}",
+      },
       // url: "https://stream.mux.com/v69RSHhFelSm4701snP22dYz2jICy4E4FUyk02rW4gxRM.m3u8",
       // interstitials: [
       //   {
