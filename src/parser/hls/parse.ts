@@ -103,7 +103,7 @@ export function parseMediaPlaylist(text: string): MediaPlaylist {
       discontinuitySequenceBase = value;
     }
     if (name === "EXT-X-DATERANGE") {
-      if (value.spliceInfo) {
+      if (value.SCTE35) {
         // When the dateRange contains spliced info, we're going to
         // collect it and match it with the corresponding segment.
         splicedDateRanges.push(value);
@@ -169,9 +169,6 @@ function parseSegment(
     if (name === "EXT-X-PROGRAM-DATE-TIME") {
       programDateTime = value;
     }
-    if (name === "EXT-X-CUE-IN") {
-      spliceInfo = { type: "IN" };
-    }
     if (name === "EXT-X-CUE-OUT") {
       spliceInfo = { type: "OUT", duration: value.duration };
     }
@@ -191,8 +188,11 @@ function parseSegment(
     const dateRange = splicedDateRanges.find((item) =>
       item.startDate.equals(programDateTime),
     );
-    if (dateRange?.spliceInfo) {
-      spliceInfo = dateRange.spliceInfo;
+    if (dateRange?.SCTE35) {
+      spliceInfo = {
+        type: "OUT",
+        duration: dateRange.duration,
+      };
     }
   }
 

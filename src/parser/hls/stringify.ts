@@ -184,10 +184,12 @@ export function stringifyMediaPlaylist(playlist: MediaPlaylist) {
     }
 
     if (segment.spliceInfo) {
-      if (segment.spliceInfo.type === "IN") {
-        lines.push("#EXT-X-CUE-IN");
-      } else if (segment.spliceInfo.type === "OUT") {
-        lines.push(`#EXT-X-CUE-OUT:DURATION=${segment.spliceInfo.duration}`);
+      if (segment.spliceInfo.type === "OUT") {
+        const attrs = ["DERIVED"];
+        if (segment.spliceInfo.duration) {
+          attrs.push(`DURATION=${segment.spliceInfo.duration}`);
+        }
+        lines.push(`#EXT-X-CUE-OUT:${attrs.join(",")}`);
       }
     }
 

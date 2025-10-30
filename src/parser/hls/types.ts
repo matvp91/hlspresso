@@ -61,7 +61,6 @@ export type Segment = {
 };
 
 export type SpliceInfo = {
-  type: "IN" | "OUT";
+  type: "OUT";
   duration?: number;
-  data?: Uint8Array;
 };
