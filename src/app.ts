@@ -70,5 +70,8 @@ app.openAPIRegistry.registerComponent("schemas", "URLParams", {
     "{ip}": {
       description: "Replace with the ip of the end user.",
     },
+    "{host}": {
+      description: "Replace with the host of the end user.",
+    },
   },
 });
