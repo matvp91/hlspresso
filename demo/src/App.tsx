@@ -25,6 +25,7 @@ export function App({ hls }: { hls: Hls }) {
           ) : null}
         </div>
       ) : null}
+      <Metadata hls={hls} />
     </div>
   );
 }
@@ -116,5 +117,23 @@ function Schedule({
         </div>
       </div>
     </div>
+  );
+}
+
+function Metadata({ hls }: { hls: Hls }) {
+  return (
+    <>
+      {hls.interstitialsManager ? (
+        <div>
+          sliding window:{" "}
+          {format(
+            (hls.interstitialsManager.primary.duration -
+              hls.interstitialsManager.primary.seekableStart) *
+              1000,
+            { ms: true },
+          )}
+        </div>
+      ) : null}
+    </>
   );
 }
