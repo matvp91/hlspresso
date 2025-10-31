@@ -3,7 +3,8 @@
   "scripts": {
     "dev": "concurrently \"esbuild src/runtime/node.ts --bundle --outfile=dist/node.js --sourcemap --platform=node --format=cjs --watch\" \"node --inspect --env-file=.node-env --watch dist/node.js | pino-pretty\"",
     "dev:wrangler": "wrangler dev src/runtime/cloudflare.ts",
-    "deploy:wrangler": "wrangler deploy --minify src/runtime/cloudflare.ts"
+    "deploy:wrangler": "wrangler deploy --minify src/runtime/cloudflare.ts",
+    "test": "vitest"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
@@ -14,6 +15,7 @@
     "@types/rison": "^0.1.0",
     "esbuild": "^0.25.11",
     "typescript": "^5",
+    "vitest": "^4.0.6",
     "wrangler": "^4.45.0"
   },
   "dependencies": {
