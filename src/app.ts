@@ -67,5 +67,8 @@ app.openAPIRegistry.registerComponent("schemas", "URLParams", {
       description: "Replace with the user agent string of the end user.",
       example: "https://ad-server.com/vmap.xml?ua={userAgent}",
     },
+    "{ip}": {
+      description: "Replace with the ip of the end user.",
+    },
   },
 });

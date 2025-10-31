@@ -1,5 +1,10 @@
 export class VASTClient {
-  get(url: string): Promise<VASTResponse>;
+  get(
+    url: string,
+    options?: {
+      fetchOptions?: RequestInit;
+    },
+  ): Promise<VASTResponse>;
   parseVAST(xml: Document): Promise<VASTResponse>;
 }
 

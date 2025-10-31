@@ -1,12 +1,20 @@
+import type { HonoRequest } from "hono";
+
 export function replaceUrlParams(
   inputUrl: string,
-  params?: Record<string, string | number | undefined>,
+  req: HonoRequest,
+  customParams?: Record<string, string | number | undefined>,
 ) {
   let url = inputUrl;
   const allParams = {
-    ...params,
     // Default params defined below.
     random: Math.floor(Math.random() * 10_000),
+    // Request
+    userAgent: req.header("user-agent"),
+    ip: req.header("cf-connecting-ip") || req.header("x-forwarded-for"),
+    host: req.header("host"),
+    // Custom
+    ...customParams,
   };
 
   const entries = Object.entries(allParams);

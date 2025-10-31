@@ -22,7 +22,7 @@ export const media: AppRouteHandler<MediaRoute> = async (c) => {
   const { sessionId, payload } = c.req.valid("param");
   const session = await getSession(c, sessionId);
 
-  const text = await processMediaPlaylist({
+  const text = await processMediaPlaylist(c, {
     session,
     payload,
   });

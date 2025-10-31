@@ -27,7 +27,14 @@ export async function processMainPlaylist(
   const { url } = session;
   await updateSessionOnMainPlaylist(c, session);
 
-  const playlistText = await ky.get(url).text();
+  const playlistText = await ky
+    .get(url, {
+      headers: {
+        "x-forwarded-for":
+          c.req.header("cf-connecting-ip") || c.req.header("x-forwarded-for"),
+      },
+    })
+    .text();
   const playlist = parseMainPlaylist(playlistText);
 
   playlist.comments = [
@@ -48,13 +55,20 @@ type ProcessMediaPlaylistParams = {
   payload: MediaPayload;
 };
 
-export async function processMediaPlaylist({
-  session,
-  payload,
-}: ProcessMediaPlaylistParams) {
+export async function processMediaPlaylist(
+  c: AppContext,
+  { session, payload }: ProcessMediaPlaylistParams,
+) {
   const origUrl = new URL(payload.path, session.url);
 
-  const playlistText = await ky.get(origUrl).text();
+  const playlistText = await ky
+    .get(origUrl, {
+      headers: {
+        "x-forwarded-for":
+          c.req.header("cf-connecting-ip") || c.req.header("x-forwarded-for"),
+      },
+    })
+    .text();
   const playlist = parseMediaPlaylist(playlistText);
 
   const isLive = !playlist.endlist;
@@ -83,7 +97,7 @@ async function updateSessionOnMainPlaylist(c: AppContext, session: Session) {
   if (session.vmap) {
     c.var.logger.info(session.vmap, "Requesting VMAP");
     const vmap = await getVMAP({
-      url: replaceUrlParams(session.vmap.url),
+      url: replaceUrlParams(session.vmap.url, c.req, session.params),
     });
 
     // Delete the VMAP url. We don't need to parse it again.

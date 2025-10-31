@@ -3,7 +3,7 @@ import { VASTClient } from "extern/vast-client";
 import type { VASTResponse } from "extern/vast-client";
 import type { AppContext } from "../routes";
 import type { svta2503 } from "../spec/svta2503";
-import type { Asset } from "../types";
+import type { Asset, Session } from "../types";
 import { replaceUrlParams } from "../utils/url";
 
 export type Ad = {
@@ -31,12 +31,28 @@ export type AdTracking = {
   [key: string]: string[] | undefined;
 };
 
-export async function resolveVASTAsset(c: AppContext, asset: Asset) {
+export async function resolveVASTAsset(
+  c: AppContext,
+  session: Session,
+  asset: Asset,
+) {
   const vastClient = new VASTClient();
   if (asset.type === "VAST") {
-    const url = replaceUrlParams(asset.url);
-    c.var.logger.info({ url }, "Requesting VAST");
-    const vastResponse = await vastClient.get(url);
+    const url = replaceUrlParams(asset.url, c.req, session.params);
+
+    const headers: HeadersInit = {};
+    const ip =
+      c.req.header("cf-connecting-ip") || c.req.header("x-forwarded-for");
+    if (ip) {
+      headers["x-forwarded-for"] = ip;
+    }
+
+    c.var.logger.info({ url, headers }, "Requesting VAST");
+    const vastResponse = await vastClient.get(url, {
+      fetchOptions: {
+        headers,
+      },
+    });
     c.var.logger.info(vastResponse, "Received VAST response");
     return mapAds(vastResponse);
   }

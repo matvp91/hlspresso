@@ -31,6 +31,7 @@ export async function createSession(
     interstitials: [],
     vmap: params.vmap,
     vast: params.vast,
+    params: params.params,
     filter: params.filter,
   };
 

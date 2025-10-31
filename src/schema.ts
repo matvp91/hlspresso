@@ -143,6 +143,10 @@ export const createSessionParamsSchema = z.strictObject({
     .openapi({
       description: "Manual interstitial insertion.",
     }),
+  params: z.record(z.string(), z.string()).openapi({
+    description:
+      "Custom key value pairs, to be used in URL resolving such as VAST or VMAP.",
+  }),
   vmap: vmapConfigSchema.optional().openapi({
     description: "Add interstitials based on the ads defined in the VMAP.",
   }),
@@ -215,6 +219,7 @@ export const sessionSchema = jsonCodec(
     expiry: z.number(),
     url: z.string(),
     interstitials: z.array(interstitialSchema),
+    params: z.record(z.string(), z.string()).optional(),
     vmap: vmapConfigSchema.optional(),
     vast: vastConfigSchema.optional(),
     filter: filterSchema.optional(),
