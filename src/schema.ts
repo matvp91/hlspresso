@@ -143,7 +143,7 @@ export const createSessionParamsSchema = z.strictObject({
     .openapi({
       description: "Manual interstitial insertion.",
     }),
-  params: z.record(z.string(), z.string()).openapi({
+  params: z.record(z.string(), z.string()).optional().openapi({
     description:
       "Custom key value pairs, to be used in URL resolving such as VAST or VMAP.",
   }),

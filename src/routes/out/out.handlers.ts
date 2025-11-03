@@ -54,7 +54,7 @@ export const assetList: AppRouteHandler<AssetListRoute> = async (c) => {
         totalDuration += asset.duration;
       }
       if (asset.type === "VAST" || asset.type === "VASTDATA") {
-        const ads = await resolveVASTAsset(c, asset);
+        const ads = await resolveVASTAsset(c, session, asset);
         c.var.logger.info(ads, "Resolved ads");
         for (const ad of ads) {
           const adSignaling = createAdCreativeSignaling(ad, totalDuration);
@@ -70,7 +70,7 @@ export const assetList: AppRouteHandler<AssetListRoute> = async (c) => {
   }
 
   if (session.vast) {
-    const ads = await resolveVASTAsset(c, {
+    const ads = await resolveVASTAsset(c, session, {
       type: "VAST",
       url: session.vast.url,
     });
