@@ -1,4 +1,5 @@
 import { z } from "@hono/zod-openapi";
+import { HTTPException } from "hono/http-exception";
 import { createErrorMap } from "zod-validation-error";
 
 z.config({
@@ -128,6 +129,20 @@ export function handleApiError(
         },
       },
       status: error.status,
+      expected: true,
+    };
+  }
+
+  if (error instanceof HTTPException && error.status === 400) {
+    return {
+      body: {
+        requestId,
+        error: {
+          code: "INVALID_REQUEST",
+          message: "The request body is invalid.",
+        },
+      },
+      status: 400,
       expected: true,
     };
   }

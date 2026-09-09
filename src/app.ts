@@ -2,6 +2,7 @@ import { Scalar } from "@scalar/hono-api-reference";
 import { cors } from "hono/cors";
 import { requestId } from "hono/request-id";
 import { pinoLogger } from "hono-pino";
+import { getEnv } from "./env";
 import { ApiError, handleApiError } from "./error";
 import { createRouter } from "./routes";
 import { appData } from "./routes/middleware";
@@ -12,7 +13,13 @@ export const app = createRouter();
 
 app.use(cors({ origin: "*", exposeHeaders: ["X-Request-Id"] }));
 app.use(requestId());
-app.use(pinoLogger());
+app.use(
+  pinoLogger({
+    pino: (c) => ({
+      level: getEnv(c).LOG_LEVEL,
+    }),
+  }),
+);
 app.use(appData);
 
 app.onError((err, c) => {

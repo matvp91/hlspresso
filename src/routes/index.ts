@@ -3,12 +3,13 @@ import type { RouteConfig, RouteHandler } from "@hono/zod-openapi";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import type { Context } from "hono";
 import type { PinoLogger } from "hono-pino";
+import type { EnvParams } from "../env";
 import { fromRequestValidationError } from "../error";
-import type { AppKv, AppParams } from "./middleware";
+import type { AppKv } from "./middleware";
 
 export type AppEnv = {
   Variables: {
-    params: AppParams;
+    params: EnvParams;
     kv: AppKv;
     logger: PinoLogger;
     requestId: string;

@@ -1,17 +1,10 @@
 import type { KVNamespace } from "@cloudflare/workers-types";
-import { z } from "@hono/zod-openapi";
-import { env, getRuntimeKey } from "hono/adapter";
+import { getRuntimeKey } from "hono/adapter";
 import { createMiddleware } from "hono/factory";
 import graceful from "node-graceful";
+import { getEnv } from "../env";
 import { ApiError } from "../error";
 import type { AppEnv } from ".";
-
-const paramsSchema = z.object({
-  REDIS_URL: z.string().optional(),
-  BASE_URL: z.string().optional(),
-});
-
-export type AppParams = z.infer<typeof paramsSchema>;
 
 export type AppKv = {
   set(key: string, value: string, ttl: number): Promise<void>;
@@ -24,45 +17,75 @@ let appKv: AppKv | undefined;
 
 export const appData = createMiddleware<AppEnv>(async (c, next) => {
   const runtimeKey = getRuntimeKey();
+  const params = getEnv(c);
 
-  const params = paramsSchema.parse(env(c));
-
-  // Create params.
   c.set("params", params);
 
   if (!appKv) {
-    // We have no appKv, try and create one.
-    if (runtimeKey === "workerd") {
-      if (!c.env.hlspresso) {
-        throw new ApiError({
-          code: "SESSION_STORE_UNAVAILABLE",
-          message: "The session store is not configured.",
-        });
-      }
+    if (runtimeKey === "workerd" && c.env.hlspresso) {
       appKv = createWorkerdKv(c.env.hlspresso);
     } else if (params.REDIS_URL) {
       try {
         appKv = await createRedisKv(params.REDIS_URL);
       } catch (cause) {
-        throw new ApiError({
-          code: "SESSION_STORE_UNAVAILABLE",
-          message: "The session store is temporarily unavailable.",
-          cause,
-        });
+        throw sessionStoreUnavailable(cause);
       }
     }
-  }
-  if (appKv) {
-    c.set("kv", appKv);
-  } else {
-    throw new ApiError({
-      code: "SESSION_STORE_UNAVAILABLE",
-      message: "The session store is not configured.",
-    });
+
+    appKv = withSessionStoreErrors(appKv ?? createMemoryKv());
   }
 
+  c.set("kv", appKv);
   await next();
 });
+
+export function createMemoryKv(): AppKv {
+  const values = new Map<string, { value: string; expiresAt: number }>();
+
+  return {
+    async set(key, value, ttl) {
+      values.set(key, { value, expiresAt: Date.now() + ttl * 1000 });
+    },
+    async get(key) {
+      const stored = values.get(key);
+      if (!stored) {
+        return null;
+      }
+      if (stored.expiresAt <= Date.now()) {
+        values.delete(key);
+        return null;
+      }
+      return stored.value;
+    },
+  };
+}
+
+function withSessionStoreErrors(kv: AppKv): AppKv {
+  return {
+    async set(key, value, ttl) {
+      try {
+        await kv.set(key, value, ttl);
+      } catch (cause) {
+        throw sessionStoreUnavailable(cause);
+      }
+    },
+    async get(key) {
+      try {
+        return await kv.get(key);
+      } catch (cause) {
+        throw sessionStoreUnavailable(cause);
+      }
+    },
+  };
+}
+
+function sessionStoreUnavailable(cause: unknown) {
+  return new ApiError({
+    code: "SESSION_STORE_UNAVAILABLE",
+    message: "The session store is temporarily unavailable.",
+    cause,
+  });
+}
 
 function createWorkerdKv(kv: KVNamespace): AppKv {
   return {

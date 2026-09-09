@@ -73,16 +73,7 @@ export async function createSession(
 }
 
 export async function getSession(c: AppContext, id: string) {
-  let json: string | null;
-  try {
-    json = await c.var.kv.get(`session:${id}`);
-  } catch (cause) {
-    throw new ApiError({
-      code: "SESSION_STORE_UNAVAILABLE",
-      message: "The session store is temporarily unavailable.",
-      cause,
-    });
-  }
+  const json = await c.var.kv.get(`session:${id}`);
   if (!json) {
     throw new ApiError({
       code: "SESSION_NOT_FOUND",
@@ -115,15 +106,7 @@ async function setStoredSession(
   json: string,
   expiry: number,
 ) {
-  try {
-    await c.var.kv.set(`session:${id}`, json, expiry);
-  } catch (cause) {
-    throw new ApiError({
-      code: "SESSION_STORE_UNAVAILABLE",
-      message: "The session store is temporarily unavailable.",
-      cause,
-    });
-  }
+  await c.var.kv.set(`session:${id}`, json, expiry);
 }
 
 export function toDateTime(startTime: DateTime, time: string | number) {
