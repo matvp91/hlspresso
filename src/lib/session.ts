@@ -67,17 +67,26 @@ export async function createSession(
   c.var.logger.info(session, "Created new session");
 
   const json = sessionSchema.encode(session);
-  await c.var.kv.set(`session:${id}`, json, session.expiry);
+  await setStoredSession(c, id, json, session.expiry);
 
   return session;
 }
 
 export async function getSession(c: AppContext, id: string) {
-  const json = await c.var.kv.get(`session:${id}`);
+  let json: string | null;
+  try {
+    json = await c.var.kv.get(`session:${id}`);
+  } catch (cause) {
+    throw new ApiError({
+      code: "SESSION_STORE_UNAVAILABLE",
+      message: "The session store is temporarily unavailable.",
+      cause,
+    });
+  }
   if (!json) {
     throw new ApiError({
-      code: "NOT_FOUND",
-      message: "Session not found",
+      code: "SESSION_NOT_FOUND",
+      message: "The session was not found or has expired.",
     });
   }
   const session = sessionSchema.parse(json);
@@ -86,8 +95,8 @@ export async function getSession(c: AppContext, id: string) {
   const expiryDate = session.startTime.plus({ seconds: session.expiry });
   if (DateTime.now() > expiryDate) {
     throw new ApiError({
-      code: "NOT_FOUND",
-      message: "Session is expired",
+      code: "SESSION_NOT_FOUND",
+      message: "The session was not found or has expired.",
     });
   }
 
@@ -97,7 +106,24 @@ export async function getSession(c: AppContext, id: string) {
 export async function updateSession(c: AppContext, session: Session) {
   const { id } = session;
   const json = sessionSchema.encode(session);
-  await c.var.kv.set(`session:${id}`, json, session.expiry);
+  await setStoredSession(c, id, json, session.expiry);
+}
+
+async function setStoredSession(
+  c: AppContext,
+  id: string,
+  json: string,
+  expiry: number,
+) {
+  try {
+    await c.var.kv.set(`session:${id}`, json, expiry);
+  } catch (cause) {
+    throw new ApiError({
+      code: "SESSION_STORE_UNAVAILABLE",
+      message: "The session store is temporarily unavailable.",
+      cause,
+    });
+  }
 }
 
 export function toDateTime(startTime: DateTime, time: string | number) {

@@ -3,7 +3,7 @@ import { z } from "@hono/zod-openapi";
 import { env, getRuntimeKey } from "hono/adapter";
 import { createMiddleware } from "hono/factory";
 import graceful from "node-graceful";
-import { assert } from "../assert";
+import { ApiError } from "../error";
 import type { AppEnv } from ".";
 
 const paramsSchema = z.object({
@@ -33,16 +33,32 @@ export const appData = createMiddleware<AppEnv>(async (c, next) => {
   if (!appKv) {
     // We have no appKv, try and create one.
     if (runtimeKey === "workerd") {
-      assert(c.env.hlspresso, "Missing workerd kv");
+      if (!c.env.hlspresso) {
+        throw new ApiError({
+          code: "SESSION_STORE_UNAVAILABLE",
+          message: "The session store is not configured.",
+        });
+      }
       appKv = createWorkerdKv(c.env.hlspresso);
     } else if (params.REDIS_URL) {
-      appKv = await createRedisKv(params.REDIS_URL);
+      try {
+        appKv = await createRedisKv(params.REDIS_URL);
+      } catch (cause) {
+        throw new ApiError({
+          code: "SESSION_STORE_UNAVAILABLE",
+          message: "The session store is temporarily unavailable.",
+          cause,
+        });
+      }
     }
   }
   if (appKv) {
     c.set("kv", appKv);
   } else {
-    throw new Error("Could not create a KV store.");
+    throw new ApiError({
+      code: "SESSION_STORE_UNAVAILABLE",
+      message: "The session store is not configured.",
+    });
   }
 
   await next();

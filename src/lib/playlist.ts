@@ -1,5 +1,5 @@
-import ky from "ky";
-import { assert } from "../assert";
+import ky, { isHTTPError, isTimeoutError } from "ky";
+import { ApiError } from "../error";
 import { filterMainPlaylist } from "../filter";
 import type { MainPlaylist, MediaPlaylist } from "../parser/hls";
 import {
@@ -27,15 +27,43 @@ export async function processMainPlaylist(
   const { url } = session;
   await updateSessionOnMainPlaylist(c, session);
 
-  const playlistText = await ky
-    .get(url, {
-      headers: {
-        "x-forwarded-for":
-          c.req.header("cf-connecting-ip") || c.req.header("x-forwarded-for"),
-      },
-    })
-    .text();
-  const playlist = parseMainPlaylist(playlistText);
+  let playlistText: string;
+  try {
+    playlistText = await ky
+      .get(url, {
+        headers: {
+          "x-forwarded-for":
+            c.req.header("cf-connecting-ip") || c.req.header("x-forwarded-for"),
+        },
+      })
+      .text();
+  } catch (cause) {
+    let message = "Could not fetch the origin main playlist.";
+    if (isHTTPError(cause)) {
+      message = `Could not fetch the origin main playlist: the origin returned HTTP ${cause.response.status}.`;
+    } else if (isTimeoutError(cause)) {
+      message =
+        "Could not fetch the origin main playlist: the request timed out.";
+    }
+    throw new ApiError({ code: "FETCH_ORIGIN_FAILED", message, cause });
+  }
+
+  let playlist: MainPlaylist;
+  try {
+    playlist = parseMainPlaylist(playlistText);
+  } catch (cause) {
+    throw new ApiError({
+      code: "INVALID_ORIGIN_PLAYLIST",
+      message: "The origin main playlist is invalid or unsupported.",
+      cause,
+    });
+  }
+  if (!playlist.variants.length) {
+    throw new ApiError({
+      code: "INVALID_ORIGIN_PLAYLIST",
+      message: "The origin main playlist contains no media variants.",
+    });
+  }
 
   playlist.comments = [
     `Generated with hlspresso, at ${session.startTime.toISO()}`,
@@ -59,17 +87,49 @@ export async function processMediaPlaylist(
   c: AppContext,
   { session, payload }: ProcessMediaPlaylistParams,
 ) {
-  const origUrl = new URL(payload.path, session.url);
+  let origUrl: URL;
+  try {
+    origUrl = new URL(payload.path, session.url);
+  } catch (cause) {
+    throw new ApiError({
+      code: "INVALID_REQUEST",
+      message: "The media playlist path is not a valid URL.",
+      details: [{ field: "payload.path", message: "Must be a valid URL." }],
+      cause,
+    });
+  }
 
-  const playlistText = await ky
-    .get(origUrl, {
-      headers: {
-        "x-forwarded-for":
-          c.req.header("cf-connecting-ip") || c.req.header("x-forwarded-for"),
-      },
-    })
-    .text();
-  const playlist = parseMediaPlaylist(playlistText);
+  let playlistText: string;
+  try {
+    playlistText = await ky
+      .get(origUrl, {
+        headers: {
+          "x-forwarded-for":
+            c.req.header("cf-connecting-ip") || c.req.header("x-forwarded-for"),
+        },
+      })
+      .text();
+  } catch (cause) {
+    let message = "Could not fetch the origin media playlist.";
+    if (isHTTPError(cause)) {
+      message = `Could not fetch the origin media playlist: the origin returned HTTP ${cause.response.status}.`;
+    } else if (isTimeoutError(cause)) {
+      message =
+        "Could not fetch the origin media playlist: the request timed out.";
+    }
+    throw new ApiError({ code: "FETCH_ORIGIN_FAILED", message, cause });
+  }
+
+  let playlist: MediaPlaylist;
+  try {
+    playlist = parseMediaPlaylist(playlistText);
+  } catch (cause) {
+    throw new ApiError({
+      code: "INVALID_ORIGIN_PLAYLIST",
+      message: "The origin media playlist is invalid or unsupported.",
+      cause,
+    });
+  }
 
   const isLive = !playlist.endlist;
 
@@ -77,7 +137,15 @@ export async function processMediaPlaylist(
     addSessionStartTimeAsPDT(session, playlist);
   }
 
-  rewriteSegmentUrlsInMedia(playlist, origUrl);
+  try {
+    rewriteSegmentUrlsInMedia(playlist, origUrl);
+  } catch (cause) {
+    throw new ApiError({
+      code: "INVALID_ORIGIN_PLAYLIST",
+      message: "The origin media playlist contains an invalid URI.",
+      cause,
+    });
+  }
 
   if (payload.type === "VIDEO") {
     addInterstitialDateRanges({
@@ -144,17 +212,75 @@ async function updateSessionOnMainPlaylist(c: AppContext, session: Session) {
   }
 }
 export async function getDuration(mainUrl: string) {
-  const mainText = await ky.get(mainUrl).text();
-  const main = parseMainPlaylist(mainText);
+  let mainText: string;
+  try {
+    mainText = await ky.get(mainUrl).text();
+  } catch (cause) {
+    let message = "Could not fetch the static asset main playlist.";
+    if (isHTTPError(cause)) {
+      message = `Could not fetch the static asset main playlist: the server returned HTTP ${cause.response.status}.`;
+    } else if (isTimeoutError(cause)) {
+      message =
+        "Could not fetch the static asset main playlist: the request timed out.";
+    }
+    throw new ApiError({ code: "FETCH_STATIC_ASSET_FAILED", message, cause });
+  }
+
+  let main: MainPlaylist;
+  try {
+    main = parseMainPlaylist(mainText);
+  } catch (cause) {
+    throw new ApiError({
+      code: "INVALID_STATIC_ASSET_PLAYLIST",
+      message: "The static asset main playlist is invalid or unsupported.",
+      cause,
+    });
+  }
 
   const variant = main.variants[0];
-  assert(variant, "Playlist should include atleast 1 variant");
+  if (!variant) {
+    throw new ApiError({
+      code: "INVALID_STATIC_ASSET_PLAYLIST",
+      message: "The static asset main playlist contains no media variants.",
+    });
+  }
 
   // Resolve and parse the first media playlist.
-  const mediaUrl = new URL(variant.uri, mainUrl);
+  let mediaUrl: URL;
+  try {
+    mediaUrl = new URL(variant.uri, mainUrl);
+  } catch (cause) {
+    throw new ApiError({
+      code: "INVALID_STATIC_ASSET_PLAYLIST",
+      message: "The static asset main playlist contains an invalid media URI.",
+      cause,
+    });
+  }
 
-  const mediaText = await ky.get(mediaUrl).text();
-  const media = parseMediaPlaylist(mediaText);
+  let mediaText: string;
+  try {
+    mediaText = await ky.get(mediaUrl).text();
+  } catch (cause) {
+    let message = "Could not fetch the static asset media playlist.";
+    if (isHTTPError(cause)) {
+      message = `Could not fetch the static asset media playlist: the server returned HTTP ${cause.response.status}.`;
+    } else if (isTimeoutError(cause)) {
+      message =
+        "Could not fetch the static asset media playlist: the request timed out.";
+    }
+    throw new ApiError({ code: "FETCH_STATIC_ASSET_FAILED", message, cause });
+  }
+
+  let media: MediaPlaylist;
+  try {
+    media = parseMediaPlaylist(mediaText);
+  } catch (cause) {
+    throw new ApiError({
+      code: "INVALID_STATIC_ASSET_PLAYLIST",
+      message: "The static asset media playlist is invalid or unsupported.",
+      cause,
+    });
+  }
 
   // Sum each segment duration to get a sense of what the total duration
   // of the playlist may be.
@@ -225,6 +351,11 @@ function addSessionStartTimeAsPDT(session: Session, playlist: MediaPlaylist) {
   const firstSegment = playlist.segments[0];
   // Add our own PDT when VOD, we'll use this to insert
   // date ranges relative to the start of the session.
-  assert(firstSegment, "Missing first segment");
+  if (!firstSegment) {
+    throw new ApiError({
+      code: "INVALID_ORIGIN_PLAYLIST",
+      message: "The origin media playlist contains no media segments.",
+    });
+  }
   firstSegment.programDateTime = session.startTime;
 }

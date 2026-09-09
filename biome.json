@@ -11,6 +11,14 @@
   },
   "linter": {
     "rules": {
+      "style": {
+        "useImportType": {
+          "level": "error",
+          "options": {
+            "style": "separatedType"
+          }
+        }
+      },
       "correctness": {
         "noUnusedImports": "error"
       }

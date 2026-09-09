@@ -1,8 +1,8 @@
 import { Scalar } from "@scalar/hono-api-reference";
 import { cors } from "hono/cors";
-import type { ContentfulStatusCode } from "hono/utils/http-status";
+import { requestId } from "hono/request-id";
 import { pinoLogger } from "hono-pino";
-import { handleApiError } from "./error";
+import { ApiError, handleApiError } from "./error";
 import { createRouter } from "./routes";
 import { appData } from "./routes/middleware";
 import out from "./routes/out/out.index";
@@ -10,14 +10,30 @@ import sessions from "./routes/sessions/sessions.index";
 
 export const app = createRouter();
 
-app.use(cors());
+app.use(cors({ origin: "*", exposeHeaders: ["X-Request-Id"] }));
+app.use(requestId());
 app.use(pinoLogger());
 app.use(appData);
 
 app.onError((err, c) => {
-  c.var.logger.error(err);
-  const { error, status } = handleApiError(err);
-  return c.json(error, status as ContentfulStatusCode);
+  const handled = handleApiError(err, c.var.requestId);
+  if (handled.expected) {
+    c.var.logger.warn({ err }, "Request failed");
+  } else {
+    c.var.logger.error({ err }, "Unexpected request failure");
+  }
+  return c.json(handled.body, handled.status);
+});
+
+app.notFound((c) => {
+  const handled = handleApiError(
+    new ApiError({
+      code: "ROUTE_NOT_FOUND",
+      message: `No route matches ${c.req.method} ${c.req.path}.`,
+    }),
+    c.var.requestId,
+  );
+  return c.json(handled.body, handled.status);
 });
 
 const routes = [sessions, out];

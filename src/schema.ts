@@ -2,14 +2,32 @@ import { z } from "@hono/zod-openapi";
 import { DateTime } from "luxon";
 import rison from "rison";
 
+const httpUrlSchema = z.url({
+  error: "Must be a valid HTTP or HTTPS URL.",
+  protocol: /^https?$/,
+});
+
+const filterRangeSchema = z
+  .string()
+  .regex(
+    /^(?:\d+-\d+|[<>]=?\s*\d+)$/,
+    'Must be a range such as "720-1080" or a comparison such as ">= 720".',
+  );
+
 const dateTimeSchema = z.codec(
   z.string(),
   z.custom<DateTime>((val) => DateTime.isDateTime(val) && val.isValid),
   {
-    decode: (value) => {
+    decode: (value, ctx) => {
       const dateTime = DateTime.fromISO(value);
       if (!dateTime.isValid) {
-        throw new Error(`Invalid ISO string ${value}`);
+        ctx.issues.push({
+          code: "invalid_format",
+          format: "datetime",
+          input: value,
+          message: "Must be a valid ISO 8601 date and time.",
+        });
+        return z.NEVER;
       }
       return dateTime;
     },
@@ -66,20 +84,14 @@ const jsonCodec = <T extends z.core.$ZodType>(schema: T) =>
 
 export const filterSchema = z
   .object({
-    height: z
-      .string()
-      .optional()
-      .openapi({
-        description: "Filter rendition height.",
-        examples: [">= 720", "< 1080"],
-      }),
-    width: z
-      .string()
-      .optional()
-      .openapi({
-        description: "Filter rendition width.",
-        examples: [">= 1920", "< 480"],
-      }),
+    height: filterRangeSchema.optional().openapi({
+      description: "Filter rendition height.",
+      examples: [">= 720", "< 1080"],
+    }),
+    width: filterRangeSchema.optional().openapi({
+      description: "Filter rendition width.",
+      examples: [">= 1920", "< 480"],
+    }),
     unstable_disableForcedText: z.boolean().optional().openapi({
       description:
         "Removes DEFAULT,AUTOSELECT attributes from all text tracks.",
@@ -88,15 +100,15 @@ export const filterSchema = z
   .openapi("Filter");
 
 const vastConfigSchema = z.strictObject({
-  url: z.string(),
+  url: httpUrlSchema,
 });
 
 const vmapConfigSchema = z.strictObject({
-  url: z.string(),
+  url: httpUrlSchema,
 });
 
 export const createSessionParamsSchema = z.strictObject({
-  url: z.string().openapi({
+  url: httpUrlSchema.openapi({
     description: "The HLS main playlist source.",
     examples: ["https://foo.bar/main.m3u8"],
   }),
@@ -104,10 +116,10 @@ export const createSessionParamsSchema = z.strictObject({
   interstitials: z
     .array(
       z.strictObject({
-        time: z.number().openapi({
+        time: z.number().finite().nonnegative().openapi({
           description: "Relative to the media time",
         }),
-        duration: z.number().optional().openapi({
+        duration: z.number().finite().positive().optional().openapi({
           description:
             "For ad replacement purposes, the interstitial will be treated as a range instead of a point when provided.",
         }),
@@ -117,7 +129,7 @@ export const createSessionParamsSchema = z.strictObject({
               z
                 .strictObject({
                   type: z.literal("STATIC"),
-                  url: z.string(),
+                  url: httpUrlSchema,
                 })
                 .openapi({
                   description:
@@ -155,12 +167,12 @@ export const createSessionParamsSchema = z.strictObject({
       "Generic VAST configuration, typically used for live where ad signaling is used to replace linear breaks.",
   }),
   expiry: z
-    .union([z.number(), z.literal(false)])
+    .union([z.int().positive(), z.literal(false)])
     .default(60 * 60 * 48)
     .openapi({
       description: "Amount of seconds until the session is discarded.",
     }),
-  group: z.string().optional().openapi({
+  group: z.string().min(1).optional().openapi({
     description:
       "Prepend the session id with a group, mainly for logging or debugging purposes.",
   }),

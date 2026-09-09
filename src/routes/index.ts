@@ -3,6 +3,7 @@ import type { RouteConfig, RouteHandler } from "@hono/zod-openapi";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import type { Context } from "hono";
 import type { PinoLogger } from "hono-pino";
+import { fromRequestValidationError } from "../error";
 import type { AppKv, AppParams } from "./middleware";
 
 export type AppEnv = {
@@ -10,6 +11,7 @@ export type AppEnv = {
     params: AppParams;
     kv: AppKv;
     logger: PinoLogger;
+    requestId: string;
   };
   Bindings: {
     hlspresso?: KVNamespace;
@@ -20,7 +22,7 @@ export function createRouter() {
   return new OpenAPIHono<AppEnv>({
     defaultHook: (result) => {
       if (!result.success) {
-        throw result.error;
+        throw fromRequestValidationError(result.error, result.target);
       }
     },
   });

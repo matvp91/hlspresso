@@ -1,6 +1,7 @@
 import { DOMParser } from "@xmldom/xmldom";
 import type { VASTResponse } from "extern/vast-client";
 import { VASTClient } from "extern/vast-client";
+import { ApiError } from "../error";
 import type { AppContext } from "../routes";
 import type { svta2503 } from "../spec/svta2503";
 import type { Asset, Session } from "../types";
@@ -48,19 +49,36 @@ export async function resolveVASTAsset(
     }
 
     c.var.logger.info({ url, headers }, "Requesting VAST");
-    const vastResponse = await vastClient.get(url, {
-      fetchOptions: {
-        headers,
-      },
-    });
+    let vastResponse: VASTResponse;
+    try {
+      vastResponse = await vastClient.get(url, {
+        fetchOptions: {
+          headers,
+        },
+      });
+    } catch (cause) {
+      throw new ApiError({
+        code: "FETCH_VAST_FAILED",
+        message: "Could not fetch or process the VAST response.",
+        cause,
+      });
+    }
     c.var.logger.info(vastResponse, "Received VAST response");
     return mapAds(vastResponse);
   }
   if (asset.type === "VASTDATA") {
-    const parser = new DOMParser();
-    const xml = parser.parseFromString(asset.data, "text/xml");
-    const vastResponse = await vastClient.parseVAST(xml);
-    return mapAds(vastResponse);
+    try {
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(asset.data, "text/xml");
+      const vastResponse = await vastClient.parseVAST(xml);
+      return mapAds(vastResponse);
+    } catch (cause) {
+      throw new ApiError({
+        code: "INVALID_VAST_RESPONSE",
+        message: "The inline VAST response is not valid or is not supported.",
+        cause,
+      });
+    }
   }
   return [];
 }

@@ -9,8 +9,11 @@ export const create: AppRouteHandler<CreateRoute> = async (c) => {
   const params = c.req.valid("json");
   const session = await createSession(c, params);
 
-  return c.json({
-    id: session.id,
-    url: `${baseUrl}/out/${session.id}/main.m3u8`,
-  });
+  return c.json(
+    {
+      id: session.id,
+      url: `${baseUrl}/out/${session.id}/main.m3u8`,
+    },
+    200,
+  );
 };
