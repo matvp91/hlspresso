@@ -3,7 +3,7 @@ export function createMediaFile() {
     id: null,
     fileURL: null,
     fileSize: 0,
-    deliveryType: 'progressive',
+    deliveryType: "progressive",
     mimeType: null,
     mediaType: null,
     codec: null,

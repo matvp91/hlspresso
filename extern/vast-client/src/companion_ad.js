@@ -1,7 +1,7 @@
 export function createCompanionAd(creativeAttributes = {}) {
   return {
     id: creativeAttributes.id || null,
-    adType: 'companionAd',
+    adType: "companionAd",
     width: creativeAttributes.width || 0,
     height: creativeAttributes.height || 0,
     assetWidth: creativeAttributes.assetWidth || null,
@@ -10,8 +10,8 @@ export function createCompanionAd(creativeAttributes = {}) {
     expandedHeight: creativeAttributes.expandedHeight || null,
     apiFramework: creativeAttributes.apiFramework || null,
     adSlotId: creativeAttributes.adSlotId || null,
-    pxratio: creativeAttributes.pxratio || '1',
-    renderingMode: creativeAttributes.renderingMode || 'default',
+    pxratio: creativeAttributes.pxratio || "1",
+    renderingMode: creativeAttributes.renderingMode || "default",
     staticResources: [],
     htmlResources: [],
     iframeResources: [],
@@ -24,5 +24,5 @@ export function createCompanionAd(creativeAttributes = {}) {
 }
 
 export function isCompanionAd(ad) {
-  return ad.adType === 'companionAd';
+  return ad.adType === "companionAd";
 }

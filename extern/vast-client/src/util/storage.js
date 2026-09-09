@@ -51,10 +51,10 @@ export class Storage {
 
     try {
       storage =
-        typeof window !== 'undefined' && window !== null
+        typeof window !== "undefined" && window !== null
           ? window.localStorage || window.sessionStorage
           : null;
-    } catch (storageError) {
+    } catch {
       storage = null;
     }
 
@@ -74,7 +74,7 @@ export class Storage {
    * @return {Boolean}
    */
   isStorageDisabled(testStorage) {
-    const testValue = '__VASTStorage__';
+    const testValue = "__VASTStorage__";
 
     try {
       testStorage.setItem(testValue, testValue);
@@ -82,7 +82,7 @@ export class Storage {
         testStorage.removeItem(testValue);
         return true;
       }
-    } catch (e) {
+    } catch {
       return true;
     }
 

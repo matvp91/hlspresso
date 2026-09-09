@@ -38,7 +38,7 @@ function _parseExtension(extNode) {
   // Parse attributes
   if (extNode.attributes) {
     for (const extNodeAttrKey in extNodeAttrs) {
-      if (extNodeAttrs.hasOwnProperty(extNodeAttrKey)) {
+      if (Object.hasOwn(extNodeAttrs, extNodeAttrKey)) {
         const extNodeAttr = extNodeAttrs[extNodeAttrKey];
 
         if (extNodeAttr.nodeName && extNodeAttr.nodeValue) {
@@ -50,7 +50,7 @@ function _parseExtension(extNode) {
 
   // Parse all children
   for (const childNodeKey in childNodes) {
-    if (childNodes.hasOwnProperty(childNodeKey)) {
+    if (Object.hasOwn(childNodes, childNodeKey)) {
       const parsedChild = _parseExtension(childNodes[childNodeKey]);
       if (parsedChild) {
         ext.children.push(parsedChild);

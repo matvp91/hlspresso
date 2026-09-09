@@ -1,5 +1,5 @@
-import { DEFAULT_TIMEOUT } from "./consts.js";
 import { util } from "../util/util.js";
+import { DEFAULT_TIMEOUT } from "./consts.js";
 
 /**
  * Return an object containing an XML document.

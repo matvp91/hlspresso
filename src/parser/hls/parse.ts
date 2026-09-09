@@ -1,6 +1,5 @@
 import type { DateTime } from "luxon";
 import { assert } from "../../assert";
-import { lexicalParse, nextLiteral } from "./lexical-parse";
 import type {
   HLSDateRange,
   HLSDefine,
@@ -10,6 +9,7 @@ import type {
   Tag,
   TagName,
 } from "./lexical-parse";
+import { lexicalParse, nextLiteral } from "./lexical-parse";
 import type {
   MainPlaylist,
   Media,

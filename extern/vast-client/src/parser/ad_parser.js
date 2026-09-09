@@ -372,10 +372,8 @@ export function _parseAdVerificationsFromExtensions(extensions) {
 
   // Find the first (and only) AdVerifications node from extensions
   extensions.some((extension) => {
-    return (adVerificationsNode = parserUtils.childByName(
-      extension,
-      "AdVerifications",
-    ));
+    adVerificationsNode = parserUtils.childByName(extension, "AdVerifications");
+    return Boolean(adVerificationsNode);
   });
 
   // Parse it if we get it

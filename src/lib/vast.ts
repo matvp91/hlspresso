@@ -1,6 +1,6 @@
 import { DOMParser } from "@xmldom/xmldom";
-import { VASTClient } from "extern/vast-client";
 import type { VASTResponse } from "extern/vast-client";
+import { VASTClient } from "extern/vast-client";
 import type { AppContext } from "../routes";
 import type { svta2503 } from "../spec/svta2503";
 import type { Asset, Session } from "../types";
@@ -103,7 +103,7 @@ export function createAdCreativeSignaling(
   const tracking: svta2503.TrackingEvent[] = [];
   for (const type in ad.tracking) {
     const urls = ad.tracking[type];
-    if (!urls || !urls.length) {
+    if (!urls?.length) {
       continue;
     }
     if (

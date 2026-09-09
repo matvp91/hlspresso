@@ -24,19 +24,19 @@ function resolveURLTemplates(URLTemplates, macros = {}, options = {}) {
 
   // Set default value for invalid ERRORCODE
   if (
-    macros["ERRORCODE"] &&
+    macros.ERRORCODE &&
     !options.isCustomCode &&
-    !/^[0-9]{3}$/.test(macros["ERRORCODE"])
+    !/^[0-9]{3}$/.test(macros.ERRORCODE)
   ) {
-    macros["ERRORCODE"] = 900;
+    macros.ERRORCODE = 900;
   }
 
   // Calc random/time based macros
-  macros["CACHEBUSTING"] = addLeadingZeros(Math.round(Math.random() * 1.0e8));
-  macros["TIMESTAMP"] = new Date().toISOString();
+  macros.CACHEBUSTING = addLeadingZeros(Math.round(Math.random() * 1.0e8));
+  macros.TIMESTAMP = new Date().toISOString();
 
   // RANDOM/random is not defined in VAST 3/4 as a valid macro tho it's used by some adServer (Auditude)
-  macros["RANDOM"] = macros["random"] = macros["CACHEBUSTING"];
+  macros.RANDOM = macros.random = macros.CACHEBUSTING;
 
   for (const macro in macros) {
     macros[macro] = encodeURIComponentRFC3986(macros[macro]);
@@ -116,7 +116,7 @@ function replaceMacrosValues(url, macros) {
 function extractURLsFromTemplates(URLTemplates) {
   if (Array.isArray(URLTemplates)) {
     return URLTemplates.map((URLTemplate) => {
-      return URLTemplate && URLTemplate.hasOwnProperty("url")
+      return URLTemplate && Object.hasOwn(URLTemplate, "url")
         ? URLTemplate.url
         : URLTemplate;
     });
@@ -218,7 +218,7 @@ function addLeadingZeros(input, length = 8) {
 }
 
 function isNumeric(n) {
-  return !isNaN(parseFloat(n)) && isFinite(n);
+  return !Number.isNaN(Number.parseFloat(n)) && Number.isFinite(Number(n));
 }
 
 function flatten(arr) {

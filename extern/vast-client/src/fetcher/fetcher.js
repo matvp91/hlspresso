@@ -1,6 +1,6 @@
 import { updateEstimatedBitrate } from "../parser/bitrate.js";
-import { urlHandler } from "./url_handler.js";
 import { DEFAULT_TIMEOUT } from "./consts.js";
+import { urlHandler } from "./url_handler.js";
 
 /**
  * This class provides a method to fetch a VAST document

@@ -1,7 +1,7 @@
 import { isCompanionAd } from "./companion_ad.js";
 import { isCreativeLinear } from "./creative/creative_linear.js";
-import { EventEmitter } from "./util/event_emitter.js";
 import { isNonLinearAd } from "./non_linear_ad.js";
+import { EventEmitter } from "./util/event_emitter.js";
 import { util } from "./util/util.js";
 
 /**
@@ -619,11 +619,7 @@ export class VASTTracker extends EventEmitter {
       });
       return;
     }
-    if (
-      !this.ad ||
-      !this.ad.adVerifications ||
-      !this.ad.adVerifications.length
-    ) {
+    if (!this.ad?.adVerifications?.length) {
       throw new Error("No adVerifications provided");
     }
 
@@ -644,7 +640,7 @@ export class VASTTracker extends EventEmitter {
     }
     const vendorTracking = vendorVerification.trackingEvents;
 
-    if (vendorTracking && vendorTracking.verificationNotExecuted) {
+    if (vendorTracking?.verificationNotExecuted) {
       const verifsNotExecuted = vendorTracking.verificationNotExecuted;
       this.trackURLs(verifsNotExecuted, macros);
       this.emit("verificationNotExecuted", {
@@ -674,7 +670,7 @@ export class VASTTracker extends EventEmitter {
       });
       return;
     }
-    macros["ADPLAYHEAD"] = formattedDuration;
+    macros.ADPLAYHEAD = formattedDuration;
     this.track("overlayViewDuration", { macros });
   }
 
@@ -752,10 +748,7 @@ export class VASTTracker extends EventEmitter {
       });
       return;
     }
-    if (
-      this.clickTrackingURLTemplates &&
-      this.clickTrackingURLTemplates.length
-    ) {
+    if (this.clickTrackingURLTemplates?.length) {
       this.trackURLs(this.clickTrackingURLTemplates, macros);
     }
 
@@ -767,7 +760,7 @@ export class VASTTracker extends EventEmitter {
 
     if (clickThroughURLTemplate) {
       if (this.progress) {
-        clonedMacros["ADPLAYHEAD"] = this.progressFormatted();
+        clonedMacros.ADPLAYHEAD = this.progressFormatted();
       }
       const clickThroughURL = util.resolveURLTemplates(
         [clickThroughURLTemplate],
@@ -799,7 +792,7 @@ export class VASTTracker extends EventEmitter {
     if (
       eventName === "closeLinear" &&
       !this.trackingEvents[eventName] &&
-      this.trackingEvents["close"]
+      this.trackingEvents.close
     ) {
       eventName = "close";
     }
@@ -844,21 +837,16 @@ export class VASTTracker extends EventEmitter {
     //Avoid mutating the object received in parameters.
     const givenMacros = { ...macros };
     if (this.linear) {
-      if (
-        this.creative &&
-        this.creative.mediaFiles &&
-        this.creative.mediaFiles[0] &&
-        this.creative.mediaFiles[0].fileURL
-      ) {
-        givenMacros["ASSETURI"] = this.creative.mediaFiles[0].fileURL;
+      if (this.creative?.mediaFiles?.[0]?.fileURL) {
+        givenMacros.ASSETURI = this.creative.mediaFiles[0].fileURL;
       }
       if (this.progress) {
-        givenMacros["ADPLAYHEAD"] = this.progressFormatted();
+        givenMacros.ADPLAYHEAD = this.progressFormatted();
       }
     }
 
     if (this.creative?.universalAdIds?.length) {
-      givenMacros["UNIVERSALADID"] = this.creative.universalAdIds
+      givenMacros.UNIVERSALADID = this.creative.universalAdIds
         .map((universalAdId) =>
           universalAdId.idRegistry.concat(" ", universalAdId.value),
         )
@@ -867,21 +855,21 @@ export class VASTTracker extends EventEmitter {
 
     if (this.ad) {
       if (this.ad.sequence) {
-        givenMacros["PODSEQUENCE"] = this.ad.sequence;
+        givenMacros.PODSEQUENCE = this.ad.sequence;
       }
       if (this.ad.adType) {
-        givenMacros["ADTYPE"] = this.ad.adType;
+        givenMacros.ADTYPE = this.ad.adType;
       }
       if (this.ad.adServingId) {
-        givenMacros["ADSERVINGID"] = this.ad.adServingId;
+        givenMacros.ADSERVINGID = this.ad.adServingId;
       }
-      if (this.ad.categories && this.ad.categories.length) {
-        givenMacros["ADCATEGORIES"] = this.ad.categories
+      if (this.ad.categories?.length) {
+        givenMacros.ADCATEGORIES = this.ad.categories
           .map((category) => category.value)
           .join(",");
       }
-      if (this.ad.blockedAdCategories && this.ad.blockedAdCategories.length) {
-        givenMacros["BLOCKEDADCATEGORIES"] = this.ad.blockedAdCategories
+      if (this.ad.blockedAdCategories?.length) {
+        givenMacros.BLOCKEDADCATEGORIES = this.ad.blockedAdCategories
           .map((blockedCategorie) => blockedCategorie.value)
           .join(",");
       }

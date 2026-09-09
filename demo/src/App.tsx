@@ -30,11 +30,7 @@ export function App({ hls }: { hls: Hls }) {
   );
 }
 
-function Schedule({
-  manager,
-}: {
-  manager: InterstitialsManager;
-}) {
+function Schedule({ manager }: { manager: InterstitialsManager }) {
   const items = manager.schedule;
   const { currentTime } = manager.integrated;
   if (!items.length) {

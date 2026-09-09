@@ -8,8 +8,8 @@ export function createNonLinearAd() {
     scalable: true,
     maintainAspectRatio: true,
     minSuggestedDuration: 0,
-    apiFramework: 'static',
-    adType: 'nonLinearAd',
+    apiFramework: "static",
+    adType: "nonLinearAd",
     type: null,
     staticResource: null,
     htmlResource: null,
@@ -21,5 +21,5 @@ export function createNonLinearAd() {
 }
 
 export function isNonLinearAd(ad) {
-  return ad.adType === 'nonLinearAd';
+  return ad.adType === "nonLinearAd";
 }

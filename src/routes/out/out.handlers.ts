@@ -1,8 +1,8 @@
-import type { AppRouteHandler } from "..";
 import { processMainPlaylist, processMediaPlaylist } from "../..//lib/playlist";
 import { getSession } from "../../lib/session";
 import { createAdCreativeSignaling, resolveVASTAsset } from "../../lib/vast";
 import type { AssetListResponse } from "../../types";
+import type { AppRouteHandler } from "..";
 import type { AssetListRoute, MainRoute, MediaRoute } from "./out.routes";
 
 export const main: AppRouteHandler<MainRoute> = async (c) => {

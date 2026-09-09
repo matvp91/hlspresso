@@ -10,7 +10,7 @@ import { parserUtils } from "./parser_utils.js";
  * @param  {undefined|Boolean} [isAdInline] - Passed recursively to itself. True if the node is contained inside a inLine tag.
  */
 function verifyRequiredValues(node, emit, isAdInline) {
-  if (!node || !node.nodeName) {
+  if (!node?.nodeName) {
     return;
   }
   if (node.nodeName === "InLine") {

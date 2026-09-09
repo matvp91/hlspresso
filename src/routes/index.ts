@@ -1,6 +1,6 @@
 import type { KVNamespace } from "@cloudflare/workers-types";
-import { OpenAPIHono } from "@hono/zod-openapi";
 import type { RouteConfig, RouteHandler } from "@hono/zod-openapi";
+import { OpenAPIHono } from "@hono/zod-openapi";
 import type { Context } from "hono";
 import type { PinoLogger } from "hono-pino";
 import type { AppKv, AppParams } from "./middleware";

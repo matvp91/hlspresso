@@ -21,18 +21,30 @@ const render = () => {
 render();
 
 async function run() {
-  const { url } = await fetch("http://localhost:3000/api/v1/sessions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
+  const { url } = await fetch(
+    // "https://hlspresso.green-mode-c2f7.workers.dev/api/v1/sessions",
+    "http://localhost:8787/api/v1/sessions",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        url: "https://stream.mux.com/v69RSHhFelSm4701snP22dYz2jICy4E4FUyk02rW4gxRM.m3u8",
+        interstitials: [
+          {
+            time: 0,
+            assets: [
+              {
+                type: "VAST",
+                url: "https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_ad_samples&sz=640x480&cust_params=sample_ct%3Dlinear&ciu_szs=300x250%2C728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&correlator={random}",
+              },
+            ],
+          },
+        ],
+      }),
     },
-    body: JSON.stringify({
-      url: "https://c4da7516d609d1a79f5550ea917bea0e.p05sqb.channel-assembly.mediatailor.us-west-2.amazonaws.com/v1/channel/TestChannel1/cmaf.m3u8",
-      // vast: {
-      //   url: "https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_ad_samples&sz=640x480&cust_params=sample_ct%3Dlinear&ciu_szs=300x250%2C728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&correlator={random}",
-      // },
-    }),
-  }).then((response) => response.json());
+  ).then((response) => response.json());
   hls.loadSource(url);
 }
 

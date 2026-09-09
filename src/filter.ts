@@ -47,8 +47,8 @@ function parseFilterToRange(input: string): [number, number] {
 function parseRange(input: string): [number, number] | null {
   const match = input.match(/^(\d+)-(\d+)$/);
   if (match?.[1] && match[2]) {
-    const min = Number.parseInt(match[1]);
-    const max = Number.parseInt(match[2]);
+    const min = Number.parseInt(match[1], 10);
+    const max = Number.parseInt(match[2], 10);
     return [min, max];
   }
   return null;
@@ -60,7 +60,7 @@ function parseOperatorToRange(input: string): [number, number] | null {
     return null;
   }
   const operator = match[1];
-  const number = Number.parseInt(match[2]);
+  const number = Number.parseInt(match[2], 10);
   if (operator === "<=") {
     return [0, number];
   }

@@ -3,7 +3,6 @@ export function mapAttributes(
   callback: (key: string, value: string) => void,
 ) {
   const items = splitByCommaWithPreservingQuotes(param);
-  // biome-ignore lint/complexity/noForEach: Use forEach
   items.forEach((item) => {
     const [key, value] = item.split(/=(.+)/);
     if (key === undefined || value === undefined) {

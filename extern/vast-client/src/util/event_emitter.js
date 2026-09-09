@@ -13,14 +13,14 @@ export class EventEmitter {
    * @returns {EventEmitter}
    */
   on(event, handler) {
-    if (typeof handler !== 'function') {
+    if (typeof handler !== "function") {
       throw new TypeError(
-        `The handler argument must be of type Function. Received type ${typeof handler}`
+        `The handler argument must be of type Function. Received type ${typeof handler}`,
       );
     }
     if (!event) {
       throw new TypeError(
-        `The event argument must be of type String. Received type ${typeof event}`
+        `The event argument must be of type String. Received type ${typeof event}`,
       );
     }
     this._handlers.push({
@@ -66,7 +66,7 @@ export class EventEmitter {
   emit(event, ...args) {
     let called = false;
     this._handlers.forEach((item) => {
-      if (item.event === '*') {
+      if (item.event === "*") {
         called = true;
         item.handler(event, ...args);
       }

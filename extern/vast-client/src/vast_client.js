@@ -1,6 +1,6 @@
-import { Storage } from "./util/storage.js";
-import { VASTParser } from "./parser/vast_parser.js";
 import { Fetcher } from "./fetcher/fetcher.js";
+import { VASTParser } from "./parser/vast_parser.js";
+import { Storage } from "./util/storage.js";
 
 /**
  * This class provides methods to fetch and parse a VAST document using VASTParser.
@@ -139,7 +139,7 @@ export class VASTClient {
     const now = Date.now();
 
     // By default the client resolves only the first Ad or AdPod
-    if (!options.hasOwnProperty("resolveAll")) {
+    if (!Object.hasOwn(options, "resolveAll")) {
       options.resolveAll = false;
     }
 

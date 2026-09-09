@@ -1,5 +1,5 @@
-import type { AppRouteHandler } from "..";
 import { createSession } from "../../lib/session";
+import type { AppRouteHandler } from "..";
 import type { CreateRoute } from "./sessions.routes";
 
 export const create: AppRouteHandler<CreateRoute> = async (c) => {

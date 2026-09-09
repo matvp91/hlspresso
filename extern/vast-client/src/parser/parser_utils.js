@@ -108,7 +108,7 @@ export function parseDuration(durationString) {
   }
   // Some VAST doesn't have an HH:MM:SS duration format but instead jus the number of seconds
   if (util.isNumeric(durationString)) {
-    return parseInt(durationString);
+    return parseInt(durationString, 10);
   }
 
   const durationComponents = durationString.split(":");
@@ -117,18 +117,18 @@ export function parseDuration(durationString) {
   }
 
   const secondsAndMS = durationComponents[2].split(".");
-  let seconds = parseInt(secondsAndMS[0]);
+  let seconds = parseInt(secondsAndMS[0], 10);
   if (secondsAndMS.length === 2) {
     seconds += parseFloat(`0.${secondsAndMS[1]}`);
   }
 
-  const minutes = parseInt(durationComponents[1] * 60);
-  const hours = parseInt(durationComponents[0] * 60 * 60);
+  const minutes = parseInt(durationComponents[1] * 60, 10);
+  const hours = parseInt(durationComponents[0] * 60 * 60, 10);
 
   if (
-    isNaN(hours) ||
-    isNaN(minutes) ||
-    isNaN(seconds) ||
+    Number.isNaN(hours) ||
+    Number.isNaN(minutes) ||
+    Number.isNaN(seconds) ||
     minutes > 60 * 60 ||
     seconds > 60
   ) {
@@ -156,7 +156,7 @@ function splitVAST(ads) {
       const lastAd = ads[i - 1];
       // check if the current Ad is exactly the next one in the AdPod
       if (lastAd && lastAd.sequence === ad.sequence - 1) {
-        lastAdPod && lastAdPod.push(ad);
+        lastAdPod?.push(ad);
         return;
       }
       // If the ad had a sequence attribute but it was not part of a correctly formed
@@ -182,7 +182,7 @@ function assignAttributes(attributes, verificationObject) {
       if (
         nodeName &&
         nodeValue &&
-        verificationObject.hasOwnProperty(nodeName)
+        Object.hasOwn(verificationObject, nodeName)
       ) {
         let value = nodeValue;
         if (typeof verificationObject[nodeName] === "boolean") {
@@ -247,16 +247,14 @@ function mergeWrapperAdData(unwrappedAd, wrapper) {
   unwrappedAd.creatives = wrapperCompanions.concat(unwrappedAd.creatives);
 
   const wrapperHasVideoClickTracking =
-    wrapper.videoClickTrackingURLTemplates &&
-    wrapper.videoClickTrackingURLTemplates.length;
+    wrapper.videoClickTrackingURLTemplates?.length;
 
   const wrapperHasVideoCustomClick =
-    wrapper.videoCustomClickURLTemplates &&
-    wrapper.videoCustomClickURLTemplates.length;
+    wrapper.videoCustomClickURLTemplates?.length;
 
   unwrappedAd.creatives.forEach((creative) => {
     // merge tracking events
-    if (wrapper.trackingEvents && wrapper.trackingEvents[creative.type]) {
+    if (wrapper.trackingEvents?.[creative.type]) {
       for (const eventName in wrapper.trackingEvents[creative.type]) {
         const urls = wrapper.trackingEvents[creative.type][eventName];
         if (!Array.isArray(creative.trackingEvents[eventName])) {

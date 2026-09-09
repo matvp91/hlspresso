@@ -1,9 +1,9 @@
-import { parseAd } from "./ad_parser.js";
 import { EventEmitter } from "../util/event_emitter.js";
-import { parserUtils } from "./parser_utils.js";
 import { util } from "../util/util.js";
 import { createVASTResponse } from "../vast_response.js";
-import { updateEstimatedBitrate, estimatedBitrate } from "./bitrate.js";
+import { parseAd } from "./ad_parser.js";
+import { estimatedBitrate, updateEstimatedBitrate } from "./bitrate.js";
+import { parserUtils } from "./parser_utils.js";
 
 const DEFAULT_MAX_WRAPPER_DEPTH = 10;
 const DEFAULT_EVENT_DATA = {
@@ -163,11 +163,7 @@ export class VASTParser extends EventEmitter {
     },
   ) {
     // check if is a valid VAST document
-    if (
-      !vastXml ||
-      !vastXml.documentElement ||
-      vastXml.documentElement.nodeName !== "VAST"
-    ) {
+    if (vastXml?.documentElement?.nodeName !== "VAST") {
       this.emit("VAST-ad-parsed", {
         type: "ERROR",
         url,

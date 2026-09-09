@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "rootDir": "./src",
     "outDir": "dist",
     "module": "esnext",
     "lib": ["esnext", "dom"],
@@ -18,9 +19,8 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "skipLibCheck": true,
-    "baseUrl": ".",
     "paths": {
-      "extern/*": ["extern/*"],
+      "extern/*": ["./extern/*"]
     }
   },
   "exclude": ["node_modules/**/*"],

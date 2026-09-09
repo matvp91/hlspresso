@@ -3,8 +3,8 @@ import { z } from "@hono/zod-openapi";
 import { env, getRuntimeKey } from "hono/adapter";
 import { createMiddleware } from "hono/factory";
 import graceful from "node-graceful";
-import type { AppEnv } from ".";
 import { assert } from "../assert";
+import type { AppEnv } from ".";
 
 const paramsSchema = z.object({
   REDIS_URL: z.string().optional(),

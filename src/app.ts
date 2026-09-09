@@ -1,7 +1,7 @@
 import { Scalar } from "@scalar/hono-api-reference";
-import { pinoLogger } from "hono-pino";
 import { cors } from "hono/cors";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
+import { pinoLogger } from "hono-pino";
 import { handleApiError } from "./error";
 import { createRouter } from "./routes";
 import { appData } from "./routes/middleware";

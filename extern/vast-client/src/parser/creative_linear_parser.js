@@ -1,5 +1,5 @@
-import { createCreativeLinear } from "../creative/creative_linear.js";
 import { createClosedCaptionFile } from "../closed_caption_file.js";
+import { createCreativeLinear } from "../creative/creative_linear.js";
 import { createIcon } from "../icon.js";
 import { createInteractiveCreativeFile } from "../interactive_creative_file.js";
 import { createMediaFile } from "../media_file.js";
@@ -212,16 +212,24 @@ function parseMediaFile(mediaFileElement) {
   mediaFile.mimeType = mediaFileElement.getAttribute("type");
   mediaFile.mediaType = mediaFileElement.getAttribute("mediaType") || "2D";
   mediaFile.apiFramework = mediaFileElement.getAttribute("apiFramework");
-  mediaFile.fileSize = parseInt(mediaFileElement.getAttribute("fileSize") || 0);
-  mediaFile.bitrate = parseInt(mediaFileElement.getAttribute("bitrate") || 0);
+  mediaFile.fileSize = parseInt(
+    mediaFileElement.getAttribute("fileSize") || 0,
+    10,
+  );
+  mediaFile.bitrate = parseInt(
+    mediaFileElement.getAttribute("bitrate") || 0,
+    10,
+  );
   mediaFile.minBitrate = parseInt(
     mediaFileElement.getAttribute("minBitrate") || 0,
+    10,
   );
   mediaFile.maxBitrate = parseInt(
     mediaFileElement.getAttribute("maxBitrate") || 0,
+    10,
   );
-  mediaFile.width = parseInt(mediaFileElement.getAttribute("width") || 0);
-  mediaFile.height = parseInt(mediaFileElement.getAttribute("height") || 0);
+  mediaFile.width = parseInt(mediaFileElement.getAttribute("width") || 0, 10);
+  mediaFile.height = parseInt(mediaFileElement.getAttribute("height") || 0, 10);
 
   const scalable = mediaFileElement.getAttribute("scalable");
   if (scalable && typeof scalable === "string") {
@@ -261,8 +269,8 @@ function parseInteractiveCreativeFile(interactiveCreativeElement) {
 function parseIcon(iconElement) {
   const icon = createIcon(iconElement);
   icon.program = iconElement.getAttribute("program");
-  icon.height = parseInt(iconElement.getAttribute("height") || 0);
-  icon.width = parseInt(iconElement.getAttribute("width") || 0);
+  icon.height = parseInt(iconElement.getAttribute("height") || 0, 10);
+  icon.width = parseInt(iconElement.getAttribute("width") || 0, 10);
   icon.xPosition = parseXPosition(iconElement.getAttribute("xPosition"));
   icon.yPosition = parseYPosition(iconElement.getAttribute("yPosition"));
   icon.apiFramework = iconElement.getAttribute("apiFramework");
@@ -346,7 +354,7 @@ function parseXPosition(xPosition) {
     return xPosition;
   }
 
-  return parseInt(xPosition || 0);
+  return parseInt(xPosition || 0, 10);
 }
 
 /**
@@ -359,7 +367,7 @@ function parseYPosition(yPosition) {
     return yPosition;
   }
 
-  return parseInt(yPosition || 0);
+  return parseInt(yPosition || 0, 10);
 }
 
 /**
@@ -373,7 +381,7 @@ function getRequiredAttributes(element, attributes) {
   let error = false;
 
   attributes.forEach((name) => {
-    if (!element || !element.getAttribute(name)) {
+    if (!element?.getAttribute(name)) {
       error = true;
     } else {
       values[name] = element.getAttribute(name);
